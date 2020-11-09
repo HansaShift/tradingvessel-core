@@ -14,9 +14,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.merchantvessel.core.business.service.UserDetailsSvcImpl;
 import com.merchantvessel.core.security.jwt.AuthEntryPointJwt;
 import com.merchantvessel.core.security.jwt.AuthTokenFilter;
-import com.merchantvessel.core.service.UserDetailsSvcImpl;
 
 @Configuration
 @EnableWebSecurity
