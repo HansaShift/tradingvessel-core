@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 import com.merchantvessel.core.business.enumeration.EObjType;
 
