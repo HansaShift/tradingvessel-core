@@ -42,6 +42,7 @@ public class DemoDataLoader {
 	public void createDemoData() {
 		roleSvc.createRoles();
 		userSvc.createUsers();
+		System.err.println("Demo data loaded");
 	}
 
 }

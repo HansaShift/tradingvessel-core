@@ -58,7 +58,7 @@ public class UserSvcImpl implements UserSvc {
 		return false;
 	};
 
-
+	@Override
 	public void registerUser(EUser eUser) {
 
 		Set<String> roles = new HashSet<>();

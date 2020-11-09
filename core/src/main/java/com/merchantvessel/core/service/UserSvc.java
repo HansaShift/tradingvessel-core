@@ -10,6 +10,7 @@ import com.merchantvessel.core.model.enumeration.EUser;
 import com.merchantvessel.core.model.jpa.ObjUser;
 
 public interface UserSvc {
+	
 	public void save(ObjUser user);
 
 	ResponseEntity<?> registerUser(String userName, String password, Set<String> strRoles);
@@ -21,4 +22,6 @@ public interface UserSvc {
 	boolean hasRole(ObjUser user, ERole eRole);
 	
 	public void createUsers();
+
+	void registerUser(EUser eUser);
 }

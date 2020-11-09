@@ -1,50 +1,25 @@
 package com.merchantvessel.core.model.jpa;
 
-import javax.persistence.Column;
+import java.io.Serializable;
+
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-@Entity
-@Table(name = "OBJ_ROLE", uniqueConstraints = { @UniqueConstraint(columnNames = "name") })
-public class ObjRole {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+import com.merchantvessel.core.model.enumeration.EObjType;
 
-	@Column(length = 20)
-	private String name;
+@Entity
+@Table(name = "OBJ_ROLE")
+public class ObjRole extends Obj implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public ObjRole(String name) {
-		this.name = name;
+		super(name, EObjType.OBJ_ROLE);
 	}
 
 	public ObjRole() {
 
 	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-//	@Override
-//	public String toString() {
-//		return "Role [id=" + id + ", name=" + name + "]";
-//	}
 
 }
