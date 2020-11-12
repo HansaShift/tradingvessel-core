@@ -13,6 +13,7 @@ public class MerchantvesselCoreApplication {
 	public static void main(String[] args) {
 
 		SpringApplication.run(MerchantvesselCoreApplication.class, args);
+
 	}
 
 	@Bean
@@ -23,3 +24,5 @@ public class MerchantvesselCoreApplication {
 	}
 
 }
+
+

@@ -63,8 +63,4 @@ public class Log {
 		this.message = message;
 	}
 
-	public void write() {
-
-	}
-
 }

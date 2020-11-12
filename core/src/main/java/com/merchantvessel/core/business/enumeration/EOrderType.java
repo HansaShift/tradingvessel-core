@@ -1,11 +1,13 @@
 package com.merchantvessel.core.business.enumeration;
 
-public enum EObjType {
-	OBJ_USER("User"), OBJ_ROLE("Role");
+public enum EOrderType {
+
+	MASTER_DATA("Master Data"),
+	TRX_DATA("Transaction Data");
 
 	public final String name;
 
-	private EObjType(String name) {
+	private EOrderType(String name) {
 		this.name = name;
 	}
 

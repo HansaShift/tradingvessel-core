@@ -15,7 +15,6 @@ public class LogSvc {
 	private LogRepo logRepo;
 
 	public void write(String msg) {
-
 		Log log = new Log(msg);
 		logRepo.save(log);
 	}
@@ -30,3 +29,5 @@ public class LogSvc {
 	}
 
 }
+
+

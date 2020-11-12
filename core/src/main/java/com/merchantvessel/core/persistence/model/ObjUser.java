@@ -14,7 +14,7 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-import com.merchantvessel.core.business.enumeration.EObjType;
+import com.merchantvessel.core.business.enumeration.EBusinessType;
 
 @Entity
 @Table(name = "OBJ_USER", uniqueConstraints = { @UniqueConstraint(columnNames = "username") })
@@ -41,7 +41,7 @@ public class ObjUser extends Obj implements Serializable {
 	}
 
 	public ObjUser(String username, String name, String password) {
-		super(name, EObjType.OBJ_USER);
+		super(name, EBusinessType.OBJ_USER);
 		this.username = username;
 		this.password = password;
 	}

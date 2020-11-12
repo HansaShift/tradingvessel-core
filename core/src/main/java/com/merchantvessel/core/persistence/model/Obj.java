@@ -23,7 +23,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.merchantvessel.core.business.enumeration.EObjType;
+import com.merchantvessel.core.business.enumeration.EBusinessType;
 
 @Entity
 @Table(name = "obj")
@@ -38,25 +38,18 @@ public class Obj implements Serializable {
 	private Long id;
 
 	@NotNull
-	@Size(max = 150)
-	private String name;
-
-	@NotNull
 	@Enumerated(EnumType.STRING)
-	@Column(length = 50)
-	private EObjType objType;
-
+	@Column(name = "BUSINESS_TYPE")
+	private EBusinessType businessType;
+	
 	@ManyToOne(targetEntity = Order.class)
 	@JoinColumn(name = "ORDER_CREATE_ID")
 	private Order orderCreate;
 
 	@ManyToOne(targetEntity = Order.class)
-	@JoinColumn(name = "ORDER_LAST_MDF_ID")
-	private Order orderLastMdf;
+	@JoinColumn(name = "ORDER_MDF_ID")
+	private Order orderMdf;
 
-	@ManyToOne(targetEntity = Order.class)
-	@JoinColumn(name = "ORDER_IN_WORK_ID")
-	private Order order;
 
 	@CreationTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
@@ -65,16 +58,27 @@ public class Obj implements Serializable {
 
 	@UpdateTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "TS_LAST_MODIFIED")
+	@Column(name = "TS_LAST_MDF")
 	private Date timestampModified;
+	
+	@NotNull
+	@Size(max = 150)
+	@Column(name = "NAME")
+	private String name;
 
-	public Obj(@NotNull String name, @NotNull EObjType objType) {
-		this.name = name;
-		this.objType = objType;
-	}
+	@Column(name = "CLOSE_DATE")
+	private Date closeDate;
+
 
 	public Obj() {
 	}
+
+	public Obj(@NotNull String name, @NotNull EBusinessType businessType) {
+		this.name = name;
+		this.businessType = businessType;
+	}
+	
+	
 
 	public Long getId() {
 		return id;
@@ -96,20 +100,21 @@ public class Obj implements Serializable {
 		return serialVersionUID;
 	}
 
-	public EObjType getObjType() {
-		return objType;
+	
+	public EBusinessType getBusinessType() {
+		return businessType;
 	}
 
-	public void setObjType(EObjType objType) {
-		this.objType = objType;
+	public void setBusinessType(EBusinessType businessType) {
+		this.businessType = businessType;
 	}
 
 	public Order getOrder() {
-		return order;
+		return orderMdf;
 	}
 
 	public void setOrder(Order order) {
-		this.order = order;
+		this.orderMdf = order;
 	}
 
 	public Date getTimestampCreate() {
@@ -134,14 +139,6 @@ public class Obj implements Serializable {
 
 	public void setOrderCreate(Order orderCreate) {
 		this.orderCreate = orderCreate;
-	}
-
-	public Order getOrderLastMdf() {
-		return orderLastMdf;
-	}
-
-	public void setOrderLastMdf(Order orderLastMdf) {
-		this.orderLastMdf = orderLastMdf;
 	}
 
 }

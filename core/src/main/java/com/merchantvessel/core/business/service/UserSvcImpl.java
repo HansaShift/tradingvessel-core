@@ -9,11 +9,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.merchantvessel.core.business.enumeration.EBusinessType;
+import com.merchantvessel.core.business.enumeration.EOrderType;
+import com.merchantvessel.core.business.enumeration.EPrcAction;
 import com.merchantvessel.core.business.enumeration.ERole;
 import com.merchantvessel.core.business.enumeration.EUser;
 import com.merchantvessel.core.intf.dto.MsgResponse;
 import com.merchantvessel.core.persistence.model.ObjRole;
 import com.merchantvessel.core.persistence.model.ObjUser;
+import com.merchantvessel.core.persistence.model.Order;
 import com.merchantvessel.core.persistence.repository.RoleRepo;
 import com.merchantvessel.core.persistence.repository.UserRepo;
 
@@ -25,6 +29,9 @@ public class UserSvcImpl implements UserSvc {
 
 	@Autowired
 	UserSvc userSvc;
+	
+	@Autowired
+	OrderSvc orderSvc;
 
 	@Autowired
 	RoleRepo roleRepo;
@@ -130,5 +137,12 @@ public class UserSvcImpl implements UserSvc {
 		for (EUser eUser : EUser.values()) {
 			registerUser(eUser);
 		}
+		
+		// Create user using order
+		ObjUser objUser = userRepo.findByUsername(EUser.ADMIN_BARACK.toString());
+		Order order = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER, EPrcAction.OBJ_BASE_INIT_CREATE, objUser);
+		System.out.println("Order ID: " + order.getId());
+		System.out.println("Order Status: " + order.getPrcStatus().getName());
+		
 	}
 }
