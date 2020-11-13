@@ -2,9 +2,7 @@ package com.merchantvessel.core.persistence.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,7 +15,6 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -26,13 +23,10 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.merchantvessel.core.business.enumeration.EBusinessType;
-import com.merchantvessel.core.business.enumeration.EPrcStatus;
-import com.merchantvessel.core.business.service.ControlSvc;
-import com.merchantvessel.core.business.service.LogSvc;
 import com.merchantvessel.core.business.enumeration.EOrderType;
+import com.merchantvessel.core.business.enumeration.EPrcStatus;
 
 @Entity
 @Table(name = "order_base")

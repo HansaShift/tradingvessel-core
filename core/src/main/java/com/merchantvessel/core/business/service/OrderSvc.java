@@ -17,7 +17,6 @@ import com.merchantvessel.core.persistence.model.Obj;
 import com.merchantvessel.core.persistence.model.ObjUser;
 import com.merchantvessel.core.persistence.model.Order;
 import com.merchantvessel.core.persistence.model.OrderTrans;
-import com.merchantvessel.core.persistence.repository.ObjRepo;
 import com.merchantvessel.core.persistence.repository.OrderRepo;
 import com.merchantvessel.core.persistence.repository.OrderTransRepo;
 
