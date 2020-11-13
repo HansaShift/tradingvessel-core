@@ -133,16 +133,23 @@ public class UserSvcImpl implements UserSvc {
 
 	}
 
+	/*
+	 * Demo Data creation
+	 */
 	public void createUsers() {
 		for (EUser eUser : EUser.values()) {
 			registerUser(eUser);
 		}
 		
-		// Create user using order
+		// CREATE USER USING ORDER
+		// GET USER
 		ObjUser objUser = userRepo.findByUsername(EUser.ADMIN_BARACK.toString());
+		
+		// CREATE ORDER
 		Order order = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER, EPrcAction.OBJ_BASE_INIT_CREATE, objUser);
 		System.out.println("Order ID: " + order.getId());
 		System.out.println("Order Status: " + order.getPrcStatus().getName());
-		
+		// VFY ORDER (persisting object 
+		order = orderSvc.execAction(order, EPrcAction.OBJ_BASE_CREATE_VFY);
 	}
 }

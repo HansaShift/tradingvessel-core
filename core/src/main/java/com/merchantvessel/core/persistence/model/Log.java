@@ -29,14 +29,19 @@ public class Log {
 	private Date timestampCreate;
 
 	@NotNull
+	@Column(name = "LOCATION")
+	private String location;
+
+	@NotNull
 	@Column(name = "MSG")
 	private String message;
 
 	public Log() {
 	}
 
-	public Log(String message) {
-		setMessage(message);
+	public Log(String location, String message) {
+		this.location = location;
+		this.message = message;
 	}
 
 	public Long getId() {
@@ -61,6 +66,14 @@ public class Log {
 
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 }

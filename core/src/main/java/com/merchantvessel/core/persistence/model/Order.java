@@ -22,12 +22,15 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.merchantvessel.core.business.enumeration.EBusinessType;
 import com.merchantvessel.core.business.enumeration.EPrcStatus;
+import com.merchantvessel.core.business.service.LogSvc;
 import com.merchantvessel.core.business.enumeration.EOrderType;
 
 @Entity
-@Table(name = "ord")
+@Table(name = "order_base")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Order implements Serializable {
 
@@ -65,6 +68,10 @@ public class Order implements Serializable {
 	@Column(name = "TS_LAST_MDF")
 	private Date timestampModified;
 
+	@ManyToOne(targetEntity = Obj.class)
+	@JoinColumn(name = "OBJ_ID")
+	private Obj obj;
+
 	@NotNull
 	@ManyToOne(targetEntity = ObjUser.class)
 	@JoinColumn(name = "USER_ID")
@@ -79,10 +86,11 @@ public class Order implements Serializable {
 
 	public Order() {
 	}
-	
+
 	public Order(@NotNull EOrderType orderType, @NotNull EBusinessType businessType, @NotNull ObjUser user) {
 		super();
 		this.prcStatus = orderType == EOrderType.MASTER_DATA ? EPrcStatus.OBJ_BASE_INIT : null;
+		this.advText = orderType.getName() + " Order of Type '" + businessType.getName() + "' by user '" + user.getName() + "'";
 		this.orderType = orderType;
 		this.businessType = businessType;
 		this.user = user;
@@ -157,7 +165,12 @@ public class Order implements Serializable {
 	}
 
 	public void setObjName(String objName) {
-		this.objName = objName;
+		if (this.orderType != EOrderType.MASTER_DATA) {
+			System.err.println("Only master data orders can have an object name!");
+		} else {
+			this.objName = objName;
+		}
+
 	}
 
 	public Date getObjCloseDate() {
@@ -165,11 +178,27 @@ public class Order implements Serializable {
 	}
 
 	public void setObjCloseDate(Date objCloseDate) {
-		this.objCloseDate = objCloseDate;
+		if (this.orderType != EOrderType.MASTER_DATA) {
+			System.err.println("Only master data orders can have an object close date!");
+		} else {
+			this.objCloseDate = objCloseDate;
+		}
 	}
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public Obj getObj() {
+		return obj;
+	}
+
+	public void setObj(Obj obj) {
+		if (this.orderType != EOrderType.MASTER_DATA) {
+			System.err.println("Only master data orders can have an object!");
+		} else {
+			this.obj = obj;
+		}
 	}
 
 }

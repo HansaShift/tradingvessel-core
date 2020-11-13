@@ -14,8 +14,8 @@ public class LogSvc {
 	@Autowired
 	private LogRepo logRepo;
 
-	public void write(String msg) {
-		Log log = new Log(msg);
+	public void write(String location, String msg) {
+		Log log = new Log(location, msg);
 		logRepo.save(log);
 	}
 

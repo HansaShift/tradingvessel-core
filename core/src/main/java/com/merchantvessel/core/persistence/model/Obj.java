@@ -41,7 +41,7 @@ public class Obj implements Serializable {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "BUSINESS_TYPE")
 	private EBusinessType businessType;
-	
+
 	@ManyToOne(targetEntity = Order.class)
 	@JoinColumn(name = "ORDER_CREATE_ID")
 	private Order orderCreate;
@@ -49,7 +49,6 @@ public class Obj implements Serializable {
 	@ManyToOne(targetEntity = Order.class)
 	@JoinColumn(name = "ORDER_MDF_ID")
 	private Order orderMdf;
-
 
 	@CreationTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
@@ -60,7 +59,7 @@ public class Obj implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "TS_LAST_MDF")
 	private Date timestampModified;
-	
+
 	@NotNull
 	@Size(max = 150)
 	@Column(name = "NAME")
@@ -69,7 +68,6 @@ public class Obj implements Serializable {
 	@Column(name = "CLOSE_DATE")
 	private Date closeDate;
 
-
 	public Obj() {
 	}
 
@@ -77,8 +75,13 @@ public class Obj implements Serializable {
 		this.name = name;
 		this.businessType = businessType;
 	}
-	
-	
+
+	public Obj(Order order) {
+		this.name = order.getObjName();
+		this.businessType = order.getBusinessType();
+		this.setOrder(order);
+		this.setOrderCreate(order);
+	}
 
 	public Long getId() {
 		return id;
@@ -100,13 +103,8 @@ public class Obj implements Serializable {
 		return serialVersionUID;
 	}
 
-	
 	public EBusinessType getBusinessType() {
 		return businessType;
-	}
-
-	public void setBusinessType(EBusinessType businessType) {
-		this.businessType = businessType;
 	}
 
 	public Order getOrder() {
@@ -141,4 +139,21 @@ public class Obj implements Serializable {
 		this.orderCreate = orderCreate;
 	}
 
+	public Order getOrderMdf() {
+		return orderMdf;
+	}
+
+	public void setOrderMdf(Order orderMdf) {
+		this.orderMdf = orderMdf;
+	}
+
+	public Date getCloseDate() {
+		return closeDate;
+	}
+
+	public void setCloseDate(Date closeDate) {
+		this.closeDate = closeDate;
+	}
+
+	
 }

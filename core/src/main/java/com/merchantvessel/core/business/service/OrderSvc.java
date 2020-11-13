@@ -9,14 +9,19 @@ import org.springframework.stereotype.Service;
 import com.merchantvessel.core.business.enumeration.EBusinessType;
 import com.merchantvessel.core.business.enumeration.EOrderType;
 import com.merchantvessel.core.business.enumeration.EPrcAction;
+import com.merchantvessel.core.persistence.model.Obj;
 import com.merchantvessel.core.persistence.model.ObjUser;
 import com.merchantvessel.core.persistence.model.Order;
 import com.merchantvessel.core.persistence.model.OrderTrans;
+import com.merchantvessel.core.persistence.repository.ObjRepo;
 import com.merchantvessel.core.persistence.repository.OrderRepo;
 import com.merchantvessel.core.persistence.repository.OrderTransRepo;
 
 @Service
 public class OrderSvc {
+
+	@Autowired
+	private ObjSvc objSvc;
 
 	@Autowired
 	private OrderRepo orderRepo;
@@ -28,23 +33,54 @@ public class OrderSvc {
 	private LogSvc logSvc;
 
 	public Order execAction(Order order, EPrcAction prcAction) {
+		System.err.println("Begin Monitoring");
+
 		List<EBusinessType> businessTypes = new ArrayList<EBusinessType>();
 		businessTypes.add(order.getOrderType() == EOrderType.MASTER_DATA ? EBusinessType.OBJ_BASE : null);
 		businessTypes.add(order.getBusinessType());
 
+		// PRC ACTION BUSINESS TYPE COMPATIBLE WITH ORDER BUSINESS TYPE
 		if (!businessTypes.contains(prcAction.getBusinessType())) {
-			logSvc.write("Order Business Type: '" + order.getBusinessType() + "' and PrcAction Business Type: '"
+			logSvc.write("OrderSvc.execAction(Order, EPrcAction)", "Order Business Type: '" + order.getBusinessType() + "' and PrcAction Business Type: '"
 					+ prcAction.getBusinessType() + "' are different. Order cannot proceed!");
 			return null;
 		}
+		// OLD PRC STATUS != NEW PRC STATUS
 		if (order.getPrcStatus() == prcAction.getNewStatus()) {
-			logSvc.write("Old WFC Status and New WFC Status are identical! Order cannot proceed");
+			logSvc.write("OrderSvc.execAction(Order, EPrcAction)", "Old WFC Status and New WFC Status are identical! Order cannot proceed");
 			return null;
 		}
+
+		// CURRENT PRC STATUS MUST BE DISCARDEABLE
 		if (prcAction.getNewStatus().isDiscarded() && !order.getPrcStatus().isDiscardeable()) {
-			logSvc.write("Order Status does not allow the order to be discarded!");
+			logSvc.write("OrderSvc.execAction(Order, EPrcAction)", "Order Status does not allow the order to be discarded!");
 			return null;
 		}
+
+		// PERSIST OBJECT
+		if (order.getOrderType() == EOrderType.MASTER_DATA && prcAction.isPersistObj()) {
+			// run object validation
+			if (!validateObjOrder(order)) {
+				logSvc.write("OrderSvc.execAction(Order, EPrcAction)", "Order Validation failed!");
+				return null;
+			}
+			persistOrderObj(order);
+		}
+		Obj obj = order.getObj();
+
+		// LOCK OBJECT
+		if (obj != null && prcAction.isLockObj()) {
+			obj.setOrder(order);
+			objSvc.save(obj);
+		}
+
+		// RELEASE OBJECT
+		if (obj != null && prcAction.isReleaseObj()) {
+			obj.setOrder(null);
+			objSvc.save(obj);
+		}
+
+		// DOCUMENT ORDER TRANSITION
 		OrderTrans orderTrans = new OrderTrans();
 		orderTrans.setOrderStatusOld(order.getPrcStatus());
 		order.setPrcStatus(prcAction.getNewStatus());
@@ -54,6 +90,52 @@ public class OrderSvc {
 		orderTrans.setOrder(order);
 		orderTransRepo.save(orderTrans);
 		return order;
+	}
+
+	private boolean validateObjOrder(Order order) {
+
+		// VALIDATE OBJ CLOSE DATE
+		if (!objSvc.validateObjCloseDate(order))
+			return false;
+
+		// VALIDATE OBJ NAME
+		if (!objSvc.validateObjName(order.getObjName()))
+			return false;
+
+		return true;
+	}
+
+	private Order persistOrderObj(Order order) {
+
+		// ENSURE ORDER IS PERSISTED
+		if (order.getId() == null) {
+			logSvc.write("OrderSvc.persistOrderObj(Order)", "Order needs an ID before its object can be persisted!");
+			return null;
+		}
+
+		// ENSURE ORDER IS OF TYPE MASTER_DATA
+		if (order.getOrderType() != EOrderType.MASTER_DATA) {
+			logSvc.write("OrderSvc.persistOrderObj(Order)", "Order must be of type '" + EOrderType.MASTER_DATA.getName()
+					+ "' in order for its Object to be persisted!");
+			return null;
+		}
+
+		Obj obj = order.getObj();
+
+		if (obj == null) {
+
+			// CREATE NEW OBJECT
+			obj = new Obj(order);
+			objSvc.save(obj);
+		} else {
+
+			// UPDATE EXISTING OBJECT
+			obj.setName(order.getObjName());
+			obj.setCloseDate(order.getObjCloseDate());
+			objSvc.save(obj);
+		}
+		return null;
+
 	}
 
 	public Order getById(Long id) {
