@@ -1,7 +1,10 @@
 package com.merchantvessel.core.persistence.model;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,6 +17,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -26,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.merchantvessel.core.business.enumeration.EBusinessType;
 import com.merchantvessel.core.business.enumeration.EPrcStatus;
+import com.merchantvessel.core.business.service.ControlSvc;
 import com.merchantvessel.core.business.service.LogSvc;
 import com.merchantvessel.core.business.enumeration.EOrderType;
 
@@ -68,6 +73,10 @@ public class Order implements Serializable {
 	@Column(name = "TS_LAST_MDF")
 	private Date timestampModified;
 
+	@NotNull
+	@Column(name = "VAL_DATE")
+	private LocalDateTime valueDate;
+
 	@ManyToOne(targetEntity = Obj.class)
 	@JoinColumn(name = "OBJ_ID")
 	private Obj obj;
@@ -90,7 +99,8 @@ public class Order implements Serializable {
 	public Order(@NotNull EOrderType orderType, @NotNull EBusinessType businessType, @NotNull ObjUser user) {
 		super();
 		this.prcStatus = orderType == EOrderType.MASTER_DATA ? EPrcStatus.OBJ_BASE_INIT : null;
-		this.advText = orderType.getName() + " Order of Type '" + businessType.getName() + "' by user '" + user.getName() + "'";
+		this.advText = orderType.getName() + " Order of Type '" + businessType.getName() + "' by user '"
+				+ user.getName() + "'";
 		this.orderType = orderType;
 		this.businessType = businessType;
 		this.user = user;
@@ -200,5 +210,14 @@ public class Order implements Serializable {
 			this.obj = obj;
 		}
 	}
+
+	public @NotNull LocalDateTime getValueDate() {
+		return valueDate;
+	}
+
+	public void setValueDate(LocalDateTime valueDate) {
+		this.valueDate = valueDate;
+	}
+
 
 }

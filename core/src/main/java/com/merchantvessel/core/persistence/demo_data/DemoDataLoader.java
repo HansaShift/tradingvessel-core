@@ -1,12 +1,17 @@
 package com.merchantvessel.core.persistence.demo_data;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
+import com.merchantvessel.core.business.enumeration.ECtrlVar;
+import com.merchantvessel.core.business.service.ControlSvc;
 import com.merchantvessel.core.business.service.LogSvc;
 import com.merchantvessel.core.business.service.OrderSvc;
 import com.merchantvessel.core.business.service.RoleSvc;
 import com.merchantvessel.core.business.service.UserSvc;
+import com.merchantvessel.core.persistence.model.CtrlVar;
+import com.merchantvessel.core.persistence.model.Log;
 
 @Component
 public class DemoDataLoader {
@@ -18,16 +23,42 @@ public class DemoDataLoader {
 //
 	@Autowired
 	private LogSvc logSvc;
+	@Autowired
+	private ControlSvc controlSvc;
 
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 	// CREATE DEMO DATA
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
+	private void createCtrlVars() {
+
+		controlSvc.create(ECtrlVar.FIN_DATE, controlSvc.getCurrentDate());
+		controlSvc.create(ECtrlVar.DEMO_DATA_CREATED, false);
+	}
+	
+	/*
+	 * Creates Demo Data if not yet done
+	 */
+	private void setCtrlVars() {
+		CtrlVar demoDataCreate = controlSvc.getByEnum(ECtrlVar.DEMO_DATA_CREATED);
+		if (demoDataCreate == null) {
+			createCtrlVars();
+			// LOAD FIN DATE FROM DATABASE
+			controlSvc.getFinDate();
+		}
+	}
+	
 	public void createDemoData() {
+		setCtrlVars();
 		roleSvc.createRoles();
 		userSvc.createUsers();
+		controlSvc.setVal(ECtrlVar.DEMO_DATA_CREATED, true);
+		List<Log> logList = logSvc.getAll();
 		
+		if (logList.size() > 0) {
+			System.err.println("There are logs in the database:");
+		}
 		System.err.println("Demo data loaded");
 	}
 

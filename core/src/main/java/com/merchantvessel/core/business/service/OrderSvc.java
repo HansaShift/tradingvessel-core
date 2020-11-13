@@ -1,6 +1,10 @@
 package com.merchantvessel.core.business.service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +23,9 @@ import com.merchantvessel.core.persistence.repository.OrderTransRepo;
 
 @Service
 public class OrderSvc {
+
+	@Autowired
+	private ControlSvc controlSvc;
 
 	@Autowired
 	private ObjSvc objSvc;
@@ -41,25 +48,28 @@ public class OrderSvc {
 
 		// PRC ACTION BUSINESS TYPE COMPATIBLE WITH ORDER BUSINESS TYPE
 		if (!businessTypes.contains(prcAction.getBusinessType())) {
-			logSvc.write("OrderSvc.execAction(Order, EPrcAction)", "Order Business Type: '" + order.getBusinessType() + "' and PrcAction Business Type: '"
-					+ prcAction.getBusinessType() + "' are different. Order cannot proceed!");
+			logSvc.write("OrderSvc.execAction(Order, EPrcAction)",
+					"Order Business Type: '" + order.getBusinessType() + "' and PrcAction Business Type: '"
+							+ prcAction.getBusinessType() + "' are different. Order cannot proceed!");
 			return null;
 		}
 		// OLD PRC STATUS != NEW PRC STATUS
 		if (order.getPrcStatus() == prcAction.getNewStatus()) {
-			logSvc.write("OrderSvc.execAction(Order, EPrcAction)", "Old WFC Status and New WFC Status are identical! Order cannot proceed");
+			logSvc.write("OrderSvc.execAction(Order, EPrcAction)",
+					"Old WFC Status and New WFC Status are identical! Order cannot proceed");
 			return null;
 		}
 
 		// CURRENT PRC STATUS MUST BE DISCARDEABLE
 		if (prcAction.getNewStatus().isDiscarded() && !order.getPrcStatus().isDiscardeable()) {
-			logSvc.write("OrderSvc.execAction(Order, EPrcAction)", "Order Status does not allow the order to be discarded!");
+			logSvc.write("OrderSvc.execAction(Order, EPrcAction)",
+					"Order Status does not allow the order to be discarded!");
 			return null;
 		}
 
 		// PERSIST OBJECT
 		if (order.getOrderType() == EOrderType.MASTER_DATA && prcAction.isPersistObj()) {
-			// run object validation
+			// VALIDATE OBJECT
 			if (!validateObjOrder(order)) {
 				logSvc.write("OrderSvc.execAction(Order, EPrcAction)", "Order Validation failed!");
 				return null;
@@ -126,7 +136,7 @@ public class OrderSvc {
 
 			// CREATE NEW OBJECT
 			obj = new Obj(order);
-			objSvc.save(obj);
+			order.setObj(objSvc.save(obj));
 		} else {
 
 			// UPDATE EXISTING OBJECT
@@ -144,8 +154,16 @@ public class OrderSvc {
 
 	public Order createOrder(EOrderType orderType, EBusinessType businessType, EPrcAction prcAction, ObjUser objUser) {
 		Order order = new Order(orderType, businessType, objUser);
+		order.setValueDate(controlSvc.getFinDate());
 		order = orderRepo.save(order);
 		order = execAction(order, prcAction);
 		return order;
+	}
+
+	public void setValueDate(Order order, int year, int month, int day) {
+		Date valueDateAsDate = new GregorianCalendar(year, month, day).getTime();
+		LocalDateTime valueDate = valueDateAsDate.toInstant()
+				.atZone(ZoneId.of(controlSvc.getGlobalTimeZone())).toLocalDateTime();
+		order.setValueDate(valueDate);
 	}
 }

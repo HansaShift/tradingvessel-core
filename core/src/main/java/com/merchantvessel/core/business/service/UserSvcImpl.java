@@ -25,6 +25,9 @@ import com.merchantvessel.core.persistence.repository.UserRepo;
 public class UserSvcImpl implements UserSvc {
 
 	@Autowired
+	ControlSvc controlSvc;
+	
+	@Autowired
 	UserRepo userRepo;
 
 	@Autowired
@@ -143,12 +146,14 @@ public class UserSvcImpl implements UserSvc {
 		
 		// CREATE USER USING ORDER
 		// GET USER
-		ObjUser objUser = userRepo.findByUsername(EUser.ADMIN_BARACK.toString());
+		ObjUser objUser = userRepo.findByUsername(EUser.ADMIN_GEORGE.toString());
 		
 		// CREATE ORDER
 		Order order = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER, EPrcAction.OBJ_BASE_INIT_CREATE, objUser);
 		System.out.println("Order ID: " + order.getId());
 		System.out.println("Order Status: " + order.getPrcStatus().getName());
+		order.setObjName("James Madison");
+		order.setValueDate(controlSvc.getMinDateLocalDateTime());
 		// VFY ORDER (persisting object 
 		order = orderSvc.execAction(order, EPrcAction.OBJ_BASE_CREATE_VFY);
 	}
