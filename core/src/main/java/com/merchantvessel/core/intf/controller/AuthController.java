@@ -27,7 +27,6 @@ import com.merchantvessel.core.persistence.repository.RoleRepo;
 import com.merchantvessel.core.persistence.repository.UserRepo;
 import com.merchantvessel.core.security.jwt.JwtUtils;
 
-
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")

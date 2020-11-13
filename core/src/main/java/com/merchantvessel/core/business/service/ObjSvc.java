@@ -15,7 +15,7 @@ public class ObjSvc {
 
 	@Autowired
 	private LogSvc logSvc;
-	
+
 	public Obj save(Obj obj) {
 		return objRepo.save(obj);
 	}
@@ -29,15 +29,15 @@ public class ObjSvc {
 	}
 
 	public boolean validateObjCloseDate(Order order) {
-		System.out.println(order.getObjCloseDate() );
+		System.out.println(order.getObjCloseDate());
 		if (order.getObjCloseDate() != null) {
 			if (order.getObj() == null) {
-				logSvc.write("ObjSvc.validateObjCloseDate()", "Validation Failed: Order has no object. Cannot set close date.");
+				logSvc.write("ObjSvc.validateObjCloseDate()",
+						"Validation Failed: Order has no object. Cannot set close date.");
 				return false;
 			}
 		}
 		return true;
 	}
-	
 
 }

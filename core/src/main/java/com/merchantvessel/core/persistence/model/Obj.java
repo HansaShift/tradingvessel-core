@@ -155,5 +155,4 @@ public class Obj implements Serializable {
 		this.closeDate = closeDate;
 	}
 
-	
 }

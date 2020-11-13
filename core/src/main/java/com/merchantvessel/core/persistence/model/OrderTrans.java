@@ -113,5 +113,4 @@ public class OrderTrans implements Serializable {
 		return serialVersionUID;
 	}
 
-	
 }

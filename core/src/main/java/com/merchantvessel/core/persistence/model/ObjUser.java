@@ -46,7 +46,6 @@ public class ObjUser extends Obj implements Serializable {
 		this.password = password;
 	}
 
-
 	public String getUsername() {
 		return username;
 	}

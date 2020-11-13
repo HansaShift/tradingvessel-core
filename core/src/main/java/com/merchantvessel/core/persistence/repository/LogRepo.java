@@ -13,6 +13,3 @@ public interface LogRepo extends JpaRepository<Log, Long> {
 	List<Log> findFirst20ByOrderByTimestampCreateDesc();
 
 }
-
-
-

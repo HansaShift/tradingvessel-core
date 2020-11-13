@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.merchantvessel.core.persistence.model.ObjUser;
 import com.merchantvessel.core.persistence.repository.UserRepo;
 
-
 @Service
 public class UserDetailsSvcImpl implements UserDetailsService {
 	@Autowired

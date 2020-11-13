@@ -94,7 +94,7 @@ public class ObjHist implements Serializable {
 		this.name = obj.getName();
 		this.closeDate = obj.getCloseDate();
 		this.validFrom = validFrom;
-		this.validTo = validTo;		
+		this.validTo = validTo;
 	}
 
 	public Long getId() {

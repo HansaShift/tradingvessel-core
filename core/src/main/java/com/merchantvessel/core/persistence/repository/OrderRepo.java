@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import com.merchantvessel.core.persistence.model.ObjUser;
 import com.merchantvessel.core.persistence.model.Order;
 
-
 @Repository
 public interface OrderRepo extends JpaRepository<Order, Long> {
 

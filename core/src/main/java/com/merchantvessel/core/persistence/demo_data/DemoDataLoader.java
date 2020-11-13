@@ -36,7 +36,7 @@ public class DemoDataLoader {
 		controlSvc.create(ECtrlVar.FIN_DATE, controlSvc.getCurrentDate());
 		controlSvc.create(ECtrlVar.DEMO_DATA_CREATED, false);
 	}
-	
+
 	/*
 	 * Creates Demo Data if not yet done
 	 */
@@ -48,14 +48,14 @@ public class DemoDataLoader {
 			controlSvc.getFinDate();
 		}
 	}
-	
+
 	public void createDemoData() {
 		setCtrlVars();
 		roleSvc.createRoles();
 		userSvc.createUsers();
 		controlSvc.setVal(ECtrlVar.DEMO_DATA_CREATED, true);
 		List<Log> logList = logSvc.getAll();
-		
+
 		if (logList.size() > 0) {
 			System.err.println("There are logs in the database:");
 		}

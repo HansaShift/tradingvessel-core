@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import com.merchantvessel.core.persistence.model.Obj;
 
-
 @Repository
 public interface ObjRepo extends JpaRepository<Obj, Long> {
 

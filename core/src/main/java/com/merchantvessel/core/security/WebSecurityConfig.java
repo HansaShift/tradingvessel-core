@@ -20,10 +20,9 @@ import com.merchantvessel.core.security.jwt.AuthTokenFilter;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(
-		prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-	
+
 	@Autowired
 	UserDetailsSvcImpl userDetailsService;
 
@@ -57,9 +56,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
 				.antMatchers("/api/auth/**").permitAll().antMatchers("/api/test/**").permitAll()
 				.antMatchers("/api/asset/**").permitAll().antMatchers("/api/order/**").permitAll()
-				.antMatchers("/api/**").permitAll()
-				.antMatchers("/api/settings/**").permitAll().antMatchers("/api/**").permitAll().anyRequest()
-				.authenticated();
+				.antMatchers("/api/**").permitAll().antMatchers("/api/settings/**").permitAll().antMatchers("/api/**")
+				.permitAll().anyRequest().authenticated();
 
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 	}

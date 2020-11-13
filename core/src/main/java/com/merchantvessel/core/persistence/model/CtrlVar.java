@@ -21,7 +21,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import com.merchantvessel.core.business.enumeration.EDataType;
 
-
 @Entity
 @Table(name = "CTRL_VAR")
 public class CtrlVar {

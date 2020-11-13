@@ -161,8 +161,8 @@ public class OrderSvc {
 
 	public void setValueDate(Order order, int year, int month, int day) {
 		Date valueDateAsDate = new GregorianCalendar(year, month, day).getTime();
-		LocalDateTime valueDate = valueDateAsDate.toInstant()
-				.atZone(ZoneId.of(controlSvc.getGlobalTimeZone())).toLocalDateTime();
+		LocalDateTime valueDate = valueDateAsDate.toInstant().atZone(ZoneId.of(controlSvc.getGlobalTimeZone()))
+				.toLocalDateTime();
 		order.setValueDate(valueDate);
 	}
 }
