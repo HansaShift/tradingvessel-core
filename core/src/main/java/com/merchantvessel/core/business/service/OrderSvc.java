@@ -38,6 +38,19 @@ public class OrderSvc {
 	@Autowired
 	private LogSvc logSvc;
 
+	public Order transOrder(Order order, EPrcAction prcAction) {
+		// DOCUMENT ORDER TRANSITION
+		OrderTrans orderTrans = new OrderTrans();
+		orderTrans.setOrderStatusOld(order.getPrcStatus());
+		order.setPrcStatus(prcAction.getNewStatus());
+		orderTrans.setOrderStatusNew(order.getPrcStatus());
+		orderTrans.setOrderAction(prcAction);
+		order = orderRepo.save(order);
+		orderTrans.setOrder(order);
+		orderTransRepo.save(orderTrans);
+		return order;
+	}
+
 	public Order execAction(Order order, EPrcAction prcAction) {
 
 		List<EBusinessType> businessTypes = new ArrayList<EBusinessType>();
@@ -65,38 +78,51 @@ public class OrderSvc {
 			return null;
 		}
 
-		// PERSIST OBJECT
-		if (order.getOrderType() == EOrderType.MASTER_DATA && prcAction.isPersistObj()) {
-			// VALIDATE OBJECT
-			if (!validateObjOrder(order)) {
-				logSvc.write("OrderSvc.execAction(Order, EPrcAction)", "Order Validation failed!");
-				return null;
+		// MASTER DATA ORDERS
+		if (order.getOrderType() == EOrderType.MASTER_DATA) {
+
+			Obj obj = null;
+
+			// PERSIST OBJECT
+			if (prcAction.isPersistObj()) {
+				// VALIDATE OBJECT
+				if (!validateObjOrder(order)) {
+					logSvc.write("OrderSvc.execAction(Order, EPrcAction)",
+							"Order Validation failed! Order ID: " + order.getId());
+					order = transOrder(order, EPrcAction.OBJ_BASE_ERR);
+					return null;
+				}
+
+				obj = persistOrderObj(order);
+				if (obj == null) {
+					logSvc.write("OrderSvc.execAction(Order, EPrcAction)",
+							"Object could not be persisted! Order ID: " + order.getId());
+					order = transOrder(order, EPrcAction.OBJ_BASE_ERR);
+					return null;
+
+				}
 			}
-			persistOrderObj(order);
-		}
-		Obj obj = order.getObj();
 
-		// LOCK OBJECT
-		if (obj != null && prcAction.isLockObj()) {
-			obj.setOrder(order);
-			objSvc.saveNoHist(obj);
-		}
+			obj = order.getObj();
+			if (obj != null && obj.getId() != null) {
 
-		// RELEASE OBJECT
-		if (obj != null && prcAction.isReleaseObj()) {
-			obj.setOrder(null);
-			objSvc.saveNoHist(obj);
+				// LOCK OBJECT
+				if (prcAction.isLockObj()) {
+					obj.setOrder(order);
+					objSvc.saveNoHist(obj);
+				}
+
+				// RELEASE OBJECT
+				if (prcAction.isReleaseObj()) {
+					obj.setOrder(null);
+					objSvc.saveNoHist(obj);
+				}
+			}
+
 		}
 
 		// DOCUMENT ORDER TRANSITION
-		OrderTrans orderTrans = new OrderTrans();
-		orderTrans.setOrderStatusOld(order.getPrcStatus());
-		order.setPrcStatus(prcAction.getNewStatus());
-		orderTrans.setOrderStatusNew(order.getPrcStatus());
-		orderTrans.setOrderAction(prcAction);
-		order = orderRepo.save(order);
-		orderTrans.setOrder(order);
-		orderTransRepo.save(orderTrans);
+		order = transOrder(order, prcAction);
 		return order;
 	}
 
@@ -113,7 +139,9 @@ public class OrderSvc {
 		return true;
 	}
 
-	private Order persistOrderObj(Order order) {
+	private Obj persistOrderObj(Order order) {
+
+		Obj obj = null;
 
 		// ENSURE ORDER IS PERSISTED
 		if (order.getId() == null) {
@@ -128,7 +156,7 @@ public class OrderSvc {
 			return null;
 		}
 
-		Obj obj = order.getObj();
+		obj = order.getObj();
 
 		if (obj == null) {
 
@@ -136,14 +164,15 @@ public class OrderSvc {
 			obj = new Obj(order);
 			obj = objSvc.save(obj, order);
 			order.setObj(obj);
+
 		} else {
 
 			// UPDATE EXISTING OBJECT
 			obj.setName(order.getObjName());
 			obj.setCloseDate(order.getObjCloseDate());
-			objSvc.save(obj, order);
+			obj = objSvc.save(obj, order);
 		}
-		return null;
+		return obj;
 
 	}
 
@@ -152,8 +181,17 @@ public class OrderSvc {
 	}
 
 	public Order createOrder(EOrderType orderType, EBusinessType businessType, EPrcAction prcAction, ObjUser objUser) {
+		return createOrder(orderType, businessType, prcAction, objUser, null);
+	}
+
+	public Order createOrder(EOrderType orderType, EBusinessType businessType, EPrcAction prcAction, ObjUser objUser,
+			LocalDateTime valueDate) {
 		Order order = new Order(orderType, businessType, objUser);
-		order.setValueDate(controlSvc.getFinDate());
+		if (valueDate == null) {
+			valueDate = orderType == EOrderType.MASTER_DATA ? controlSvc.getMinDateLocalDateTime()
+					: controlSvc.getFinDate();
+		}
+		order.setValueDate(valueDate);
 		order = orderRepo.save(order);
 		order = execAction(order, prcAction);
 		return order;

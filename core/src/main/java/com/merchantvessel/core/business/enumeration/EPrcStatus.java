@@ -7,7 +7,8 @@ public enum EPrcStatus {
 	OBJ_BASE_SHOW("Show", "SHOW", EBusinessType.OBJ_BASE, false, false),
 	OBJ_BASE_DISC("Discarded", "DISCARDED", EBusinessType.OBJ_BASE, false, true),
 	OBJ_BASE_HOLD("Hold", "HOLD", EBusinessType.OBJ_BASE, true, false),
-	OBJ_BASE_DONE("Done", "DONE", EBusinessType.OBJ_BASE, false, false);
+	OBJ_BASE_DONE("Done", "DONE", EBusinessType.OBJ_BASE, false, false),
+	OBJ_BASE_ERR("Error", "ERR", EBusinessType.OBJ_BASE, false, false);
 
 	private final String name;
 	private final String key;

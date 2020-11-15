@@ -1,7 +1,7 @@
 package com.merchantvessel.core.business.enumeration;
 
 public enum EUser {
-	ADMIN_GEORGE("ENUM: George Washington", ERole.ROLE_ADMIN), TRADER_THOMAS("ENUM: Thomas Jefferson", ERole.ROLE_TRADER);
+	TECHNICAL_USER("ENUM: Technical User", ERole.ROLE_ADMIN), ADMIN_GEORGE("ENUM: George Washington", ERole.ROLE_ADMIN), TRADER_THOMAS("ENUM: Thomas Jefferson", ERole.ROLE_TRADER);
 
 	public final String name;
 	public final ERole role;

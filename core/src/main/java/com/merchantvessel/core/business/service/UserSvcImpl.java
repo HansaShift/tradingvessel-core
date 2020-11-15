@@ -118,7 +118,15 @@ public class UserSvcImpl implements UserSvc {
 		// ---------------------------------------------------------------------
 		// PERSIST USER
 		// ---------------------------------------------------------------------
-		objSvc.save(user, null);
+		ObjUser technicalUser = userRepo.findByUsername(EUser.TECHNICAL_USER.toString());
+		if (technicalUser == null && userName == EUser.TECHNICAL_USER.toString()) {
+			userRepo.save(user);
+		} else {
+			Order order = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER,
+					EPrcAction.OBJ_BASE_INIT_CREATE, technicalUser);
+			order.setObjName(userName);
+			orderSvc.execAction(order, EPrcAction.OBJ_BASE_CREATE_VFY);
+		}
 
 		// ---------------------------------------------------------------------
 		// ADD NATURAL PERSON WITH MACC
@@ -144,14 +152,19 @@ public class UserSvcImpl implements UserSvc {
 	 * Demo Data creation
 	 */
 	public void createUsers() {
+
+		registerUser(EUser.TECHNICAL_USER);
+
 		for (EUser eUser : EUser.values()) {
 			registerUser(eUser);
 		}
 
 		// CREATE USER USING ORDER
 		// GET USER
-		ObjUser objUser = userRepo.findByUsername(EUser.ADMIN_GEORGE.toString());
+		ObjUser objUser = userRepo.findByUsername(EUser.TECHNICAL_USER.toString());
 
+		System.err.println(objUser.getName());
+		
 		// CREATE ORDER
 		Order order = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER,
 				EPrcAction.OBJ_BASE_INIT_CREATE, objUser);
