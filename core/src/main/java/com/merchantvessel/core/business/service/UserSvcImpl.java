@@ -15,6 +15,7 @@ import com.merchantvessel.core.business.enumeration.EPrcAction;
 import com.merchantvessel.core.business.enumeration.ERole;
 import com.merchantvessel.core.business.enumeration.EUser;
 import com.merchantvessel.core.intf.dto.MsgResponse;
+import com.merchantvessel.core.persistence.model.Obj;
 import com.merchantvessel.core.persistence.model.ObjRole;
 import com.merchantvessel.core.persistence.model.ObjUser;
 import com.merchantvessel.core.persistence.model.Order;
@@ -35,6 +36,9 @@ public class UserSvcImpl implements UserSvc {
 
 	@Autowired
 	OrderSvc orderSvc;
+
+	@Autowired
+	ObjSvc objSvc;
 
 	@Autowired
 	RoleRepo roleRepo;
@@ -114,7 +118,7 @@ public class UserSvcImpl implements UserSvc {
 		// ---------------------------------------------------------------------
 		// PERSIST USER
 		// ---------------------------------------------------------------------
-		user = userRepo.save(user);
+		objSvc.save(user, null);
 
 		// ---------------------------------------------------------------------
 		// ADD NATURAL PERSON WITH MACC
@@ -151,11 +155,20 @@ public class UserSvcImpl implements UserSvc {
 		// CREATE ORDER
 		Order order = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER,
 				EPrcAction.OBJ_BASE_INIT_CREATE, objUser);
-		System.out.println("Order ID: " + order.getId());
-		System.out.println("Order Status: " + order.getPrcStatus().getName());
+		order.setAdvText("Create new user called James Madison");
 		order.setObjName("James Madison");
 		order.setValueDate(controlSvc.getMinDateLocalDateTime());
 		// VFY ORDER (persisting object
 		order = orderSvc.execAction(order, EPrcAction.OBJ_BASE_CREATE_VFY);
+		Obj createdUser = order.getObj();
+		order = null;
+
+		// OPEN USER AND MODIFY HIS NAME
+		order = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER, EPrcAction.OBJ_BASE_INIT_MDF,
+				objUser);
+		order.setAdvText("Change name of user 'James Madison' to 'James Miller'");
+		order.setObj(createdUser);
+		order.setObjName("James Miller");
+		orderSvc.execAction(order, EPrcAction.OBJ_BASE_MDF_VFY);
 	}
 }

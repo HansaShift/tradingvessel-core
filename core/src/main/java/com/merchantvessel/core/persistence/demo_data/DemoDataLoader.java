@@ -51,6 +51,10 @@ public class DemoDataLoader {
 
 	public void createDemoData() {
 		setCtrlVars();
+		if (controlSvc.getByEnum(ECtrlVar.DEMO_DATA_CREATED).isValBool()) {
+			System.out.println("Demo data was already loaded in a previous run.");
+			return;
+		}
 		roleSvc.createRoles();
 		userSvc.createUsers();
 		controlSvc.setVal(ECtrlVar.DEMO_DATA_CREATED, true);

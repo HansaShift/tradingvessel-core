@@ -38,7 +38,13 @@ public class ObjHist implements Serializable {
 	@Column(name = "ID")
 	private Long id;
 
+	@NotNull
 	@ManyToOne(targetEntity = Order.class)
+	@JoinColumn(name = "ORDER_ID")
+	private Order orderId;
+
+	@NotNull
+	@ManyToOne(targetEntity = Obj.class)
 	@JoinColumn(name = "OBJ_ID")
 	private Obj objId;
 
@@ -48,21 +54,25 @@ public class ObjHist implements Serializable {
 	private EBusinessType businessType;
 
 	@ManyToOne(targetEntity = Order.class)
-	@JoinColumn(name = "ORDER_CREATE_ID")
+	@JoinColumn(name = "OBJ_ORDER_CREATE_ID")
 	private Order orderCreate;
 
 	@ManyToOne(targetEntity = Order.class)
-	@JoinColumn(name = "ORDER_MDF_ID")
+	@JoinColumn(name = "OBJ_ORDER_MDF_ID")
 	private Order orderMdf;
 
 	@CreationTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "TS_INS", updatable = false)
+	@Column(name = "OBJ_HIST_TS_INS", updatable = false)
+	private Date timestampCreateObjHist;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "OBJ_TS_INS", updatable = false)
 	private Date timestampCreate;
 
 	@UpdateTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "TS_LAST_MDF")
+	@Column(name = "OBJ_TS_LAST_MDF")
 	private Date timestampModified;
 
 	@NotNull
@@ -84,8 +94,9 @@ public class ObjHist implements Serializable {
 	public ObjHist() {
 	}
 
-	public ObjHist(@NotNull Obj obj, @NotNull LocalDateTime validFrom, @NotNull LocalDateTime validTo) {
+	public ObjHist(@NotNull Obj obj, @NotNull Order order, @NotNull LocalDateTime validFrom, @NotNull LocalDateTime validTo) {
 		this.objId = obj;
+		this.orderId = order;
 		this.businessType = obj.getBusinessType();
 		this.orderCreate = obj.getOrderCreate();
 		this.orderMdf = obj.getOrderMdf();
@@ -195,6 +206,14 @@ public class ObjHist implements Serializable {
 
 	public void setCloseDate(Date closeDate) {
 		this.closeDate = closeDate;
+	}
+
+	public Date getTimestampCreateObjHist() {
+		return timestampCreateObjHist;
+	}
+
+	public void setTimestampCreateObjHist(Date timestampCreateObjHist) {
+		this.timestampCreateObjHist = timestampCreateObjHist;
 	}
 
 }

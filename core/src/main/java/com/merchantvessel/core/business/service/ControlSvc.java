@@ -35,7 +35,7 @@ public class ControlSvc {
 	public static Date maxDate = new GregorianCalendar(3000, 11, 1).getTime();
 	private static LocalDateTime minDateLocalDateTime = minDate.toInstant().atZone(ZoneId.of(globalTimeZone))
 			.toLocalDateTime();
-	public static LocalDateTime maxDateLocalDateTime = minDate.toInstant().atZone(ZoneId.of(globalTimeZone))
+	public static LocalDateTime maxDateLocalDateTime = maxDate.toInstant().atZone(ZoneId.of(globalTimeZone))
 			.toLocalDateTime();
 
 	// --------------------------------------------------------------
@@ -44,16 +44,15 @@ public class ControlSvc {
 	public LocalDateTime getCurrentDate() {
 
 		LocalDateTime finDate = new Date().toInstant().atZone(ZoneId.of(globalTimeZone)).toLocalDateTime();
-		System.err.println(finDate);
+		
 		finDate = getLastDayOfYear(finDate);
-		System.err.println(finDate);
 		return finDate;
 	}
 
 	public LocalDateTime getFinDate() {
 
 		CtrlVar ctrlVarFinDate = getByEnum(ECtrlVar.FIN_DATE);
-		System.err.println(ctrlVarFinDate);
+		
 		LocalDateTime finDateDB = null;
 		if (ctrlVarFinDate != null) {
 			finDateDB = ctrlVarFinDate.getValDate();
@@ -186,5 +185,14 @@ public class ControlSvc {
 	public static void setMinDateLocalDateTime(LocalDateTime minDateLocalDateTime) {
 		ControlSvc.minDateLocalDateTime = minDateLocalDateTime;
 	}
+	
+	public LocalDateTime getMaxDateLocalDateTime() {
+		return maxDateLocalDateTime;
+	}
+
+	public static void setMaxDateLocalDateTime(LocalDateTime maxDateLocalDateTime) {
+		ControlSvc.maxDateLocalDateTime = maxDateLocalDateTime;
+	}
+
 
 }

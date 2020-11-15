@@ -39,7 +39,6 @@ public class OrderSvc {
 	private LogSvc logSvc;
 
 	public Order execAction(Order order, EPrcAction prcAction) {
-		System.err.println("Begin Monitoring");
 
 		List<EBusinessType> businessTypes = new ArrayList<EBusinessType>();
 		businessTypes.add(order.getOrderType() == EOrderType.MASTER_DATA ? EBusinessType.OBJ_BASE : null);
@@ -80,13 +79,13 @@ public class OrderSvc {
 		// LOCK OBJECT
 		if (obj != null && prcAction.isLockObj()) {
 			obj.setOrder(order);
-			objSvc.save(obj);
+			objSvc.saveNoHist(obj);
 		}
 
 		// RELEASE OBJECT
 		if (obj != null && prcAction.isReleaseObj()) {
 			obj.setOrder(null);
-			objSvc.save(obj);
+			objSvc.saveNoHist(obj);
 		}
 
 		// DOCUMENT ORDER TRANSITION
@@ -135,13 +134,14 @@ public class OrderSvc {
 
 			// CREATE NEW OBJECT
 			obj = new Obj(order);
-			order.setObj(objSvc.save(obj));
+			obj = objSvc.save(obj, order);
+			order.setObj(obj);
 		} else {
 
 			// UPDATE EXISTING OBJECT
 			obj.setName(order.getObjName());
 			obj.setCloseDate(order.getObjCloseDate());
-			objSvc.save(obj);
+			objSvc.save(obj, order);
 		}
 		return null;
 
