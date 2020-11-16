@@ -35,7 +35,7 @@ public class UserSvcImpl implements UserSvc {
 	UserSvc userSvc;
 
 	@Autowired
-	OrderSvc orderSvc;
+	OrderUserSvc orderSvc;
 
 	@Autowired
 	ObjSvc objSvc;
@@ -98,9 +98,11 @@ public class UserSvcImpl implements UserSvc {
 			ObjUser user = new ObjUser(userName, name, encoder.encode(password));
 			userRepo.save(user);
 		} else {
-			OrderUser order = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER, EPrcAction.OBJ_BASE_INIT_CREATE, technicalUser, null, OrderUser.class);
+			OrderUser order = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER,
+					EPrcAction.OBJ_BASE_INIT_CREATE, technicalUser, null, OrderUser.class);
 			order.setObjName(name);
 			order.setUserName(userName);
+			order.setPassword(encoder.encode(password));
 			orderSvc.execAction(order, EPrcAction.OBJ_BASE_CREATE_VFY, ObjUser.class);
 		}
 
@@ -167,10 +169,12 @@ public class UserSvcImpl implements UserSvc {
 		System.err.println(objUser.getName());
 
 		// CREATE ORDER
-		OrderUser orderUser = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER, EPrcAction.OBJ_BASE_INIT_CREATE, objUser, null, OrderUser.class);
+		OrderUser orderUser = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER,
+				EPrcAction.OBJ_BASE_INIT_CREATE, objUser, null, OrderUser.class);
 		orderUser.setAdvText("Create new user called James Madison");
 		orderUser.setObjName("James Madison");
 		orderUser.setUserName("JAMES_MADISON");
+		orderUser.setPassword(encoder.encode("JAMES_MADISON"));
 		orderUser.setValueDate(controlSvc.getMinDateLocalDateTime());
 		// VFY ORDER (persisting object
 		orderUser = orderSvc.<ObjUser, OrderUser>execAction(orderUser, EPrcAction.OBJ_BASE_CREATE_VFY, ObjUser.class);
@@ -178,7 +182,8 @@ public class UserSvcImpl implements UserSvc {
 		orderUser = null;
 
 		// OPEN USER AND MODIFY HIS NAME
-		orderUser = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER, EPrcAction.OBJ_BASE_INIT_MDF, objUser, null, OrderUser.class);
+		orderUser = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER, EPrcAction.OBJ_BASE_INIT_MDF,
+				objUser, null, OrderUser.class);
 		orderUser.setAdvText("Change name of user 'James Madison' to 'James Miller'");
 		orderUser.setObj(createdUser);
 		orderUser.setObjName("James Miller");

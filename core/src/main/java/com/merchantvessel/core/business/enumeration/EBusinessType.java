@@ -21,6 +21,5 @@ public enum EBusinessType {
 	public Class getObjClass() {
 		return objClass;
 	}
-	
-	
+
 }

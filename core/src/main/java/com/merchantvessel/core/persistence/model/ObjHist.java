@@ -53,27 +53,19 @@ public class ObjHist implements Serializable {
 	@Column(name = "BUSINESS_TYPE")
 	private EBusinessType businessType;
 
-	@ManyToOne(targetEntity = Order.class)
-	@JoinColumn(name = "OBJ_ORDER_CREATE_ID")
-	private Order orderCreate;
-
-	@ManyToOne(targetEntity = Order.class)
-	@JoinColumn(name = "OBJ_ORDER_MDF_ID")
-	private Order orderMdf;
-
 	@CreationTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "OBJ_HIST_TS_INS", updatable = false)
-	private Date timestampCreateObjHist;
+	private Date objHistTsIns;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "OBJ_TS_INS", updatable = false)
-	private Date timestampCreate;
+	private Date objTsIns;
 
 	@UpdateTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "OBJ_TS_LAST_MDF")
-	private Date timestampModified;
+	private Date objTsLastMdf;
 
 	@NotNull
 	@Size(max = 150)
@@ -94,14 +86,14 @@ public class ObjHist implements Serializable {
 	public ObjHist() {
 	}
 
-	public ObjHist(@NotNull Obj obj, @NotNull Order order, @NotNull LocalDateTime validFrom, @NotNull LocalDateTime validTo) {
-		this.objId = obj;
+	public ObjHist(@NotNull Obj obj, @NotNull Order order, @NotNull LocalDateTime validFrom,
+			@NotNull LocalDateTime validTo) {
+		super();
 		this.orderId = order;
+		this.objId = obj;
 		this.businessType = obj.getBusinessType();
-		this.orderCreate = obj.getOrderCreate();
-		this.orderMdf = obj.getOrderMdf();
-		this.timestampCreate = obj.getTimestampCreate();
-		this.timestampModified = obj.getTimestampModified();
+		this.objTsIns = obj.getTimestampCreate();
+		this.objTsLastMdf = obj.getTimestampModified();
 		this.name = obj.getName();
 		this.closeDate = obj.getCloseDate();
 		this.validFrom = validFrom;
@@ -116,12 +108,68 @@ public class ObjHist implements Serializable {
 		this.id = id;
 	}
 
+	public Order getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(Order orderId) {
+		this.orderId = orderId;
+	}
+
 	public Obj getObjId() {
 		return objId;
 	}
 
 	public void setObjId(Obj objId) {
 		this.objId = objId;
+	}
+
+	public EBusinessType getBusinessType() {
+		return businessType;
+	}
+
+	public void setBusinessType(EBusinessType businessType) {
+		this.businessType = businessType;
+	}
+
+	public Date getObjHistTsIns() {
+		return objHistTsIns;
+	}
+
+	public void setObjHistTsIns(Date objHistTsIns) {
+		this.objHistTsIns = objHistTsIns;
+	}
+
+	public Date getObjTsIns() {
+		return objTsIns;
+	}
+
+	public void setObjTsIns(Date objTsIns) {
+		this.objTsIns = objTsIns;
+	}
+
+	public Date getObjTsLastMdf() {
+		return objTsLastMdf;
+	}
+
+	public void setObjTsLastMdf(Date objTsLastMdf) {
+		this.objTsLastMdf = objTsLastMdf;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Date getCloseDate() {
+		return closeDate;
+	}
+
+	public void setCloseDate(Date closeDate) {
+		this.closeDate = closeDate;
 	}
 
 	public LocalDateTime getValidFrom() {
@@ -140,80 +188,8 @@ public class ObjHist implements Serializable {
 		this.validTo = validTo;
 	}
 
-	public void setBusinessType(EBusinessType businessType) {
-		this.businessType = businessType;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public static long getSerialversionuid() {
 		return serialVersionUID;
-	}
-
-	public EBusinessType getBusinessType() {
-		return businessType;
-	}
-
-	public Order getOrder() {
-		return orderMdf;
-	}
-
-	public void setOrder(Order order) {
-		this.orderMdf = order;
-	}
-
-	public Date getTimestampCreate() {
-		return timestampCreate;
-	}
-
-	public void setTimestampCreate(Date timestampCreate) {
-		this.timestampCreate = timestampCreate;
-	}
-
-	public Date getTimestampModified() {
-		return timestampModified;
-	}
-
-	public void setTimestampModified(Date timestampModified) {
-		this.timestampModified = timestampModified;
-	}
-
-	public Order getOrderCreate() {
-		return orderCreate;
-	}
-
-	public void setOrderCreate(Order orderCreate) {
-		this.orderCreate = orderCreate;
-	}
-
-	public Order getOrderMdf() {
-		return orderMdf;
-	}
-
-	public void setOrderMdf(Order orderMdf) {
-		this.orderMdf = orderMdf;
-	}
-
-	public Date getCloseDate() {
-		return closeDate;
-	}
-
-	public void setCloseDate(Date closeDate) {
-		this.closeDate = closeDate;
-	}
-
-	public Date getTimestampCreateObjHist() {
-		return timestampCreateObjHist;
-	}
-
-	public void setTimestampCreateObjHist(Date timestampCreateObjHist) {
-		this.timestampCreateObjHist = timestampCreateObjHist;
 	}
 
 }

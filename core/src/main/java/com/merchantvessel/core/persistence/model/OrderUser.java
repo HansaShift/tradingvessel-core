@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.merchantvessel.core.business.enumeration.EBusinessType;
@@ -20,6 +21,9 @@ public class OrderUser extends Order implements Serializable {
 
 	@Column(name = "USER_NAME")
 	private String userName;
+
+	@Size(max = 120)
+	private String password;
 
 	public OrderUser() {
 		super();
@@ -39,6 +43,14 @@ public class OrderUser extends Order implements Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 }

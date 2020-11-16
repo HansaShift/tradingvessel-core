@@ -30,16 +30,15 @@ public class ObjSvc {
 		ObjHist objHist = objHistRepo.findTopByObjId(obj);
 		return objHist;
 	}
-	
 
 	public Obj saveNoHist(Obj obj) {
 		return objRepo.save(obj);
-		
+
 	}
 
 	public Obj save(Obj obj, Order order) {
 		obj = objRepo.save(obj);
-		
+
 		if (order == null) {
 			return obj;
 		}
@@ -85,6 +84,5 @@ public class ObjSvc {
 		}
 		return true;
 	}
-
 
 }

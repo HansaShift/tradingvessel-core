@@ -164,6 +164,20 @@ public class OrderSvc {
 		return true;
 	}
 
+	public <ObjType extends Obj, OrderClassType extends Order> ObjType setObjFieldsGeneric(ObjType obj,
+			OrderClassType order) {
+		obj.setName(order.getObjName());
+		obj.setBusinessType(order.getBusinessType());
+		obj.setName(order.getObjName());
+		obj.setOrderCreate(order);
+		obj.setOrderMdf(order);
+		return obj;
+	}
+
+	public <ObjType extends Obj, OrderClassType extends Order> ObjType setObjFields(ObjType obj, OrderClassType order) {
+		return obj;
+	}
+
 	private <ObjType extends Obj> ObjType persistOrderObj(Order order) {
 
 		// ENSURE ORDER IS PERSISTED
@@ -199,8 +213,9 @@ public class OrderSvc {
 			} catch (SecurityException e) {
 				e.printStackTrace();
 			}
-			obj.setName(order.getObjName());
-			obj.setBusinessType(order.getBusinessType());
+
+			obj = setObjFieldsGeneric(obj, order);
+			obj = setObjFields(obj, order);
 			obj = (ObjType) objSvc.save(obj, order);
 			order.setObj(obj);
 

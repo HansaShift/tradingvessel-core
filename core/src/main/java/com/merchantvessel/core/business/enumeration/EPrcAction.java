@@ -35,9 +35,9 @@ public enum EPrcAction {
 			EPrcStatus.OBJ_BASE_DONE, false, false, true),
 	OBJ_BASE_HOLD_DISC("Discard Order", "OBJ_BASE_HOLD_DISC", EBusinessType.OBJ_BASE, EPrcStatus.OBJ_BASE_MDF,
 			EPrcStatus.OBJ_BASE_DISC, false, false, true),
-	
+
 	// ERROR STATES
-	OBJ_BASE_ERR ("Order Error", "OBJ_BASE_ERR", EBusinessType.OBJ_BASE, EPrcStatus.OBJ_BASE_MDF,
+	OBJ_BASE_ERR("Order Error", "OBJ_BASE_ERR", EBusinessType.OBJ_BASE, EPrcStatus.OBJ_BASE_MDF,
 			EPrcStatus.OBJ_BASE_ERR, false, false, false);
 
 	private final String name;

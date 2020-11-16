@@ -213,5 +213,4 @@ public class Order implements Serializable {
 		this.valueDate = valueDate;
 	}
 
-	
 }

@@ -32,7 +32,6 @@ public class Obj implements Serializable {
 
 	private static final long serialVersionUID = -3458221490393509305L;
 
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID")
@@ -44,7 +43,7 @@ public class Obj implements Serializable {
 	private EBusinessType businessType;
 
 	@ManyToOne(targetEntity = Order.class)
-	@JoinColumn(name = "ORDER_CREATE_ID")
+	@JoinColumn(name = "ORDER_CREATE_ID", updatable = false)
 	private Order orderCreate;
 
 	@ManyToOne(targetEntity = Order.class)
@@ -160,5 +159,4 @@ public class Obj implements Serializable {
 		this.businessType = businessType;
 	}
 
-	
 }
