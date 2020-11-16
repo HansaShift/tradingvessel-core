@@ -1,5 +1,6 @@
 package com.merchantvessel.core.business.service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -51,7 +52,25 @@ public class OrderSvc {
 		return order;
 	}
 
-	public Order execAction(Order order, EPrcAction prcAction) {
+	public <ObjType extends Obj, OrderClassType extends Order> OrderClassType execAction(OrderClassType order,
+			EPrcAction prcAction, Class<?> objClass) {
+
+		ObjType obj;
+		try {
+			obj = (ObjType) objClass.getDeclaredConstructor().newInstance();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		}
 
 		List<EBusinessType> businessTypes = new ArrayList<EBusinessType>();
 		businessTypes.add(order.getOrderType() == EOrderType.MASTER_DATA ? EBusinessType.OBJ_BASE : null);
@@ -81,29 +100,27 @@ public class OrderSvc {
 		// MASTER DATA ORDERS
 		if (order.getOrderType() == EOrderType.MASTER_DATA) {
 
-			Obj obj = null;
-
 			// PERSIST OBJECT
 			if (prcAction.isPersistObj()) {
 				// VALIDATE OBJECT
 				if (!validateObjOrder(order)) {
 					logSvc.write("OrderSvc.execAction(Order, EPrcAction)",
 							"Order Validation failed! Order ID: " + order.getId());
-					order = transOrder(order, EPrcAction.OBJ_BASE_ERR);
+					order = (OrderClassType) transOrder(order, EPrcAction.OBJ_BASE_ERR);
 					return null;
 				}
 
-				obj = persistOrderObj(order);
+				obj = (ObjType) persistOrderObj(order);
 				if (obj == null) {
 					logSvc.write("OrderSvc.execAction(Order, EPrcAction)",
 							"Object could not be persisted! Order ID: " + order.getId());
-					order = transOrder(order, EPrcAction.OBJ_BASE_ERR);
+					order = (OrderClassType) transOrder(order, EPrcAction.OBJ_BASE_ERR);
 					return null;
 
 				}
 			}
 
-			obj = order.getObj();
+			obj = (ObjType) order.getObj();
 			if (obj != null && obj.getId() != null) {
 
 				// LOCK OBJECT
@@ -122,7 +139,7 @@ public class OrderSvc {
 		}
 
 		// DOCUMENT ORDER TRANSITION
-		order = transOrder(order, prcAction);
+		order = (OrderClassType) transOrder(order, prcAction);
 		return order;
 	}
 
@@ -139,9 +156,7 @@ public class OrderSvc {
 		return true;
 	}
 
-	private Obj persistOrderObj(Order order) {
-
-		Obj obj = null;
+	private <ObjType extends Obj> ObjType persistOrderObj(Order order) {
 
 		// ENSURE ORDER IS PERSISTED
 		if (order.getId() == null) {
@@ -156,13 +171,29 @@ public class OrderSvc {
 			return null;
 		}
 
-		obj = order.getObj();
+		ObjType obj = (ObjType) order.getObj();
 
 		if (obj == null) {
 
 			// CREATE NEW OBJECT
-			obj = new Obj(order);
-			obj = objSvc.save(obj, order);
+			try {
+				obj = (ObjType) order.getBusinessType().getObjClass().getDeclaredConstructor().newInstance();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			}
+			obj.setName(order.getObjName());
+			obj.setBusinessType(order.getBusinessType());
+			obj = (ObjType) objSvc.save(obj, order);
 			order.setObj(obj);
 
 		} else {
@@ -170,7 +201,7 @@ public class OrderSvc {
 			// UPDATE EXISTING OBJECT
 			obj.setName(order.getObjName());
 			obj.setCloseDate(order.getObjCloseDate());
-			obj = objSvc.save(obj, order);
+			obj = (ObjType) objSvc.save(obj, order);
 		}
 		return obj;
 
@@ -180,20 +211,42 @@ public class OrderSvc {
 		return orderRepo.getOne(id);
 	}
 
-	public Order createOrder(EOrderType orderType, EBusinessType businessType, EPrcAction prcAction, ObjUser objUser) {
-		return createOrder(orderType, businessType, prcAction, objUser, null);
-	}
-
-	public Order createOrder(EOrderType orderType, EBusinessType businessType, EPrcAction prcAction, ObjUser objUser,
-			LocalDateTime valueDate) {
-		Order order = new Order(orderType, businessType, objUser);
+	public LocalDateTime getValueDate(Order order, LocalDateTime valueDate) {
 		if (valueDate == null) {
-			valueDate = orderType == EOrderType.MASTER_DATA ? controlSvc.getMinDateLocalDateTime()
+			valueDate = order.getOrderType() == EOrderType.MASTER_DATA ? controlSvc.getMinDateLocalDateTime()
 					: controlSvc.getFinDate();
 		}
-		order.setValueDate(valueDate);
+		return valueDate;
+	}
+
+	public <OrderClassType extends Order> OrderClassType createOrder(EOrderType orderType, EBusinessType businessType,
+			EPrcAction prcAction, ObjUser objUser, LocalDateTime valueDate, Class<?> orderClass) {
+
+		OrderClassType order = null;
+
+		try {
+			order = (OrderClassType) orderClass.getDeclaredConstructor().newInstance();
+
+			order.setOrderType(orderType);
+			order.setBusinessType(businessType);
+			order.setObjUser(objUser);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		}
+
+		order.setValueDate(getValueDate(order, valueDate));
 		order = orderRepo.save(order);
-		order = execAction(order, prcAction);
+		order = execAction(order, prcAction, order.getBusinessType().getObjClass());
 		return order;
 	}
 

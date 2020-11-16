@@ -32,6 +32,7 @@ public class Obj implements Serializable {
 
 	private static final long serialVersionUID = -3458221490393509305L;
 
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID")
@@ -155,4 +156,9 @@ public class Obj implements Serializable {
 		this.closeDate = closeDate;
 	}
 
+	public void setBusinessType(EBusinessType businessType) {
+		this.businessType = businessType;
+	}
+
+	
 }

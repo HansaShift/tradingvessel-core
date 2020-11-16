@@ -78,7 +78,7 @@ public class Order implements Serializable {
 	@NotNull
 	@ManyToOne(targetEntity = ObjUser.class)
 	@JoinColumn(name = "USER_ID")
-	private ObjUser user;
+	private ObjUser objUser;
 
 	@Size(max = 150)
 	@Column(name = "OBJ_NAME")
@@ -97,7 +97,7 @@ public class Order implements Serializable {
 				+ user.getName() + "'";
 		this.orderType = orderType;
 		this.businessType = businessType;
-		this.user = user;
+		this.objUser = user;
 	}
 
 	public Long getId() {
@@ -156,12 +156,12 @@ public class Order implements Serializable {
 		this.timestampModified = timestampModified;
 	}
 
-	public ObjUser getUser() {
-		return user;
+	public ObjUser getObjUser() {
+		return objUser;
 	}
 
-	public void setUser(ObjUser user) {
-		this.user = user;
+	public void setObjUser(ObjUser objUser) {
+		this.objUser = objUser;
 	}
 
 	public String getObjName() {
@@ -213,4 +213,5 @@ public class Order implements Serializable {
 		this.valueDate = valueDate;
 	}
 
+	
 }

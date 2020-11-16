@@ -11,7 +11,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 import com.merchantvessel.core.business.enumeration.EBusinessType;
@@ -24,11 +23,9 @@ public class ObjUser extends Obj implements Serializable {
 	 */
 	private static final long serialVersionUID = 4442311010636937427L;
 
-	@NotBlank
 	@Size(max = 50)
 	private String username;
 
-	@NotBlank
 	@Size(max = 120)
 	private String password;
 

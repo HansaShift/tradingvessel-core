@@ -11,6 +11,6 @@ import com.merchantvessel.core.persistence.model.Order;
 @Repository
 public interface OrderRepo extends JpaRepository<Order, Long> {
 
-	List<Order> findByUser(ObjUser user);
+	List<Order> findByObjUser(ObjUser objUser);
 
 }
