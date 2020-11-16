@@ -21,6 +21,14 @@ import com.merchantvessel.core.persistence.model.OrderTrans;
 import com.merchantvessel.core.persistence.repository.OrderRepo;
 import com.merchantvessel.core.persistence.repository.OrderTransRepo;
 
+/**
+ * TODO: Enable business type specific method overrides to set Business type
+ * specific fields allowing for @NotNull fields in child classes for objects and
+ * orders
+ * 
+ * @author Daniel
+ *
+ */
 @Service
 public class OrderSvc {
 
