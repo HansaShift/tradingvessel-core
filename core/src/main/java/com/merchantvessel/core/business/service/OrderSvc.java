@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import com.merchantvessel.core.business.enumeration.EBusinessType;
 import com.merchantvessel.core.business.enumeration.EOrderType;
 import com.merchantvessel.core.business.enumeration.EPrcAction;
-import com.merchantvessel.core.business.enumeration.EPrcStatus;
 import com.merchantvessel.core.persistence.model.Obj;
 import com.merchantvessel.core.persistence.model.ObjUser;
 import com.merchantvessel.core.persistence.model.Order;
@@ -174,7 +173,9 @@ public class OrderSvc {
 		obj.setName(order.getObjName());
 		obj.setBusinessType(order.getBusinessType());
 		obj.setName(order.getObjName());
-		obj.setOrderCreate(order);
+		if (obj.getOrderCreate() == null) {
+			obj.setOrderCreate(order);
+		}
 		obj.setOrderMdf(order);
 		return obj;
 	}
@@ -227,8 +228,8 @@ public class OrderSvc {
 		} else {
 
 			// UPDATE EXISTING OBJECT
-			obj.setName(order.getObjName());
-			obj.setCloseDate(order.getObjCloseDate());
+			obj = setObjFieldsGeneric(obj, order);
+			obj = setObjFields(obj, order);
 			obj = (ObjType) objSvc.save(obj, order);
 		}
 		return obj;
@@ -254,14 +255,16 @@ public class OrderSvc {
 		OrderClassType order = null;
 
 		// ENSURE OBJ IS NOT LOCKED
-		if ((prcAction.isLockObj() || prcAction.isPersistObj() || prcAction.isReleaseObj()) && obj == null) {
+		if (((prcAction.isLockObj() && !prcAction.isCreateObj()) || prcAction.isPersistObj()
+				|| prcAction.isReleaseObj()) && obj == null) {
 			logSvc.write("OrderSvc.createOrder()", "Order cannot be created: Object is missing! User: "
 					+ objUser.getName() + " : " + businessType.getName());
 			return null;
 		}
 
 		if (obj != null && obj.getOrder() != null) {
-			logSvc.write("OrderSvc.createOrder()", "Object is locked. Cannot be edited.");
+			logSvc.write("OrderSvc.createOrder()", "Order cannot proceed: Object with ID: " + obj.getId()
+					+ " is locked by Order ID: " + obj.getOrder().getId());
 			return null;
 		}
 
@@ -273,7 +276,11 @@ public class OrderSvc {
 			order.setBusinessType(businessType);
 			order.setObjUser(objUser);
 			order.setValueDate(getValueDate(order, valueDate));
-			order.setObj(obj);
+
+			if (obj != null) {
+				order = setOrderFieldsGeneric(obj, order);
+				order = setOrderFields(obj, order);
+			}
 
 		} catch (InstantiationException e) {
 			e.printStackTrace();
@@ -302,13 +309,17 @@ public class OrderSvc {
 		order.setValueDate(valueDate);
 	}
 
-	public <ObjType extends Obj, OrderClassType extends Order> ObjType setOrderFields(ObjType obj,
+	public <ObjType extends Obj, OrderClassType extends Order> OrderClassType setOrderFieldsGeneric(ObjType obj,
 			OrderClassType order) {
-		obj.setName(order.getObjName());
-		obj.setBusinessType(order.getBusinessType());
-		obj.setName(order.getObjName());
-		obj.setOrderCreate(order);
-		obj.setOrderMdf(order);
-		return obj;
+		order.setObj(obj);
+		order.setObjName(obj.getName());
+		order.setObjCloseDate(obj.getCloseDate());
+		return order;
+	}
+
+	public <ObjType extends Obj, OrderClassType extends Order> OrderClassType setOrderFields(ObjType obj,
+			OrderClassType order) {
+
+		return order;
 	}
 }

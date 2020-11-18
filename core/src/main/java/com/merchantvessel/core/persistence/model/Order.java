@@ -198,11 +198,7 @@ public class Order implements Serializable {
 	}
 
 	public void setObj(Obj obj) {
-		if (this.orderType != EOrderType.MASTER_DATA) {
-			System.err.println("Only master data orders can have an object!");
-		} else {
-			this.obj = obj;
-		}
+		this.obj = obj;
 	}
 
 	public @NotNull LocalDateTime getValueDate() {

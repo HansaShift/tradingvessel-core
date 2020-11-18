@@ -18,22 +18,26 @@ import com.merchantvessel.core.persistence.model.OrderUser;
 @Service
 public class OrderUserSvc extends OrderSvc {
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public <ObjClassType extends Obj, OrderClassType extends Order> ObjClassType setObjFields(ObjClassType obj, OrderClassType order) {
+	public <ObjClassType extends Obj, OrderClassType extends Order> ObjClassType setObjFields(ObjClassType obj,
+			OrderClassType order) {
 		ObjUser objUser = (ObjUser) obj;
 		OrderUser orderUser = (OrderUser) order;
 		objUser.setUsername(orderUser.getUserName());
 		objUser.setPassword(orderUser.getPassword());
 		return (ObjClassType) objUser;
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	@Override
-	public <ObjClassType extends Obj, OrderClassType extends Order> ObjClassType setOrderFields(ObjClassType obj, OrderClassType order) {
+	public <ObjType extends Obj, OrderClassType extends Order> OrderClassType setOrderFields(ObjType obj,
+			OrderClassType order) {
 		ObjUser objUser = (ObjUser) obj;
 		OrderUser orderUser = (OrderUser) order;
-		objUser.setUsername(orderUser.getUserName());
-		objUser.setPassword(orderUser.getPassword());
-		return (ObjClassType) objUser;
+		orderUser.setUserName(objUser.getUsername());
+		orderUser.setPassword(objUser.getPassword());
+		return (OrderClassType) orderUser;
 	}
 
 }
