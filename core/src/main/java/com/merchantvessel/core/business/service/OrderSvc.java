@@ -8,12 +8,15 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.merchantvessel.core.business.enumeration.EBusinessType;
 import com.merchantvessel.core.business.enumeration.EOrderType;
 import com.merchantvessel.core.business.enumeration.EPrcAction;
+import com.merchantvessel.core.business.enumeration.EPrcStatus;
 import com.merchantvessel.core.persistence.model.Obj;
 import com.merchantvessel.core.persistence.model.ObjUser;
 import com.merchantvessel.core.persistence.model.Order;
@@ -108,8 +111,9 @@ public class OrderSvc {
 		// MASTER DATA ORDERS
 		if (order.getOrderType() == EOrderType.MASTER_DATA) {
 
-			// PERSIST OBJECT
+			// DOES ORDER PERSIST OBJECT?
 			if (prcAction.isPersistObj()) {
+
 				// VALIDATE OBJECT
 				if (!validateObjOrder(order)) {
 					logSvc.write("OrderSvc.execAction(Order, EPrcAction)",
@@ -118,6 +122,7 @@ public class OrderSvc {
 					return null;
 				}
 
+				// PERSIST OBJECT
 				obj = (ObjType) persistOrderObj(order);
 				if (obj == null) {
 					logSvc.write("OrderSvc.execAction(Order, EPrcAction)",
@@ -242,17 +247,34 @@ public class OrderSvc {
 		return valueDate;
 	}
 
-	public <OrderClassType extends Order> OrderClassType createOrder(EOrderType orderType, EBusinessType businessType,
-			EPrcAction prcAction, ObjUser objUser, LocalDateTime valueDate, Class<?> orderClass) {
+	public <OrderClassType extends Order> OrderClassType createOrder(@NotNull EOrderType orderType,
+			@NotNull EBusinessType businessType, @NotNull EPrcAction prcAction, @NotNull ObjUser objUser,
+			LocalDateTime valueDate, @NotNull Class<?> orderClass, Obj obj) {
 
 		OrderClassType order = null;
 
+		// ENSURE OBJ IS NOT LOCKED
+		if ((prcAction.isLockObj() || prcAction.isPersistObj() || prcAction.isReleaseObj()) && obj == null) {
+			logSvc.write("OrderSvc.createOrder()", "Order cannot be created: Object is missing! User: "
+					+ objUser.getName() + " : " + businessType.getName());
+			return null;
+		}
+
+		if (obj != null && obj.getOrder() != null) {
+			logSvc.write("OrderSvc.createOrder()", "Object is locked. Cannot be edited.");
+			return null;
+		}
+
+		// CREATE ORDER
 		try {
 			order = (OrderClassType) orderClass.getDeclaredConstructor().newInstance();
 
 			order.setOrderType(orderType);
 			order.setBusinessType(businessType);
 			order.setObjUser(objUser);
+			order.setValueDate(getValueDate(order, valueDate));
+			order.setObj(obj);
+
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -267,8 +289,8 @@ public class OrderSvc {
 			e.printStackTrace();
 		}
 
-		order.setValueDate(getValueDate(order, valueDate));
 		order = orderRepo.save(order);
+
 		order = execAction(order, prcAction, order.getBusinessType().getObjClass());
 		return order;
 	}
@@ -278,5 +300,15 @@ public class OrderSvc {
 		LocalDateTime valueDate = valueDateAsDate.toInstant().atZone(ZoneId.of(controlSvc.getGlobalTimeZone()))
 				.toLocalDateTime();
 		order.setValueDate(valueDate);
+	}
+
+	public <ObjType extends Obj, OrderClassType extends Order> ObjType setOrderFields(ObjType obj,
+			OrderClassType order) {
+		obj.setName(order.getObjName());
+		obj.setBusinessType(order.getBusinessType());
+		obj.setName(order.getObjName());
+		obj.setOrderCreate(order);
+		obj.setOrderMdf(order);
+		return obj;
 	}
 }

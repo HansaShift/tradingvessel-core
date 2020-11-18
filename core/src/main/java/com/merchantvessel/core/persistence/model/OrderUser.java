@@ -19,10 +19,11 @@ public class OrderUser extends Order implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(name = "USER_NAME")
+	@Column(name = "OBJ_USER_NAME")
 	private String userName;
 
 	@Size(max = 120)
+	@Column(name = "OBJ_PASSWORD")
 	private String password;
 
 	public OrderUser() {

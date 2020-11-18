@@ -99,7 +99,7 @@ public class UserSvcImpl implements UserSvc {
 			userRepo.save(user);
 		} else {
 			OrderUser order = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER,
-					EPrcAction.OBJ_BASE_INIT_CREATE, technicalUser, null, OrderUser.class);
+					EPrcAction.OBJ_BASE_INIT_CREATE, technicalUser, null, OrderUser.class, null);
 			order.setObjName(name);
 			order.setUserName(userName);
 			order.setPassword(encoder.encode(password));
@@ -170,7 +170,7 @@ public class UserSvcImpl implements UserSvc {
 
 		// CREATE ORDER
 		OrderUser orderUser = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER,
-				EPrcAction.OBJ_BASE_INIT_CREATE, objUser, null, OrderUser.class);
+				EPrcAction.OBJ_BASE_INIT_CREATE, objUser, null, OrderUser.class, null);
 		orderUser.setAdvText("Create new user called James Madison");
 		orderUser.setObjName("James Madison");
 		orderUser.setUserName("JAMES_MADISON");
@@ -183,9 +183,8 @@ public class UserSvcImpl implements UserSvc {
 
 		// OPEN USER AND MODIFY HIS NAME
 		orderUser = orderSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER, EPrcAction.OBJ_BASE_INIT_MDF,
-				objUser, null, OrderUser.class);
+				objUser, null, OrderUser.class, createdUser);
 		orderUser.setAdvText("Change name of user 'James Madison' to 'James Miller'");
-		orderUser.setObj(createdUser);
 		orderUser.setObjName("James Miller");
 		orderSvc.execAction(orderUser, EPrcAction.OBJ_BASE_MDF_VFY, ObjUser.class);
 	}

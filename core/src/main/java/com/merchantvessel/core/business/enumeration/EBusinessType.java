@@ -4,13 +4,16 @@ import com.merchantvessel.core.persistence.model.ObjUser;
 
 public enum EBusinessType {
 
-	OBJ_BASE("Base", null), OBJ_USER("User", ObjUser.class), OBJ_ROLE("Role", null);
+	OBJ_BASE("Base", EDataKind.MASTER_DATA, null), OBJ_USER("User", EDataKind.MASTER_DATA, ObjUser.class),
+	OBJ_ROLE("Role", EDataKind.MASTER_DATA, null);
 
 	public final String name;
+	public final EDataKind dataKind;
 	public final Class objClass;
 
-	private EBusinessType(String name, Class objClass) {
+	private EBusinessType(String name, EDataKind dataKind, Class objClass) {
 		this.name = name;
+		this.dataKind = dataKind;
 		this.objClass = objClass;
 	}
 
