@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.merchantvessel.core.business.enumeration.EBusinessType;
-import com.merchantvessel.core.business.enumeration.EOrderType;
+import com.merchantvessel.core.business.enumeration.EDataKind;
 import com.merchantvessel.core.business.enumeration.EPrcAction;
 import com.merchantvessel.core.business.enumeration.ERole;
 import com.merchantvessel.core.business.enumeration.EUser;
@@ -98,10 +98,10 @@ public class UserSvcImpl implements UserSvc {
 			ObjUser user = new ObjUser(userName, name, encoder.encode(password));
 			userRepo.save(user);
 		} else {
-			OrderObjUser order = orderUserSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER,
-					EPrcAction.OBJ_BASE_INIT_CREATE, technicalUser, null, OrderObjUser.class, null);
+			OrderObjUser order = orderUserSvc.createOrder(EBusinessType.OBJ_USER,
+					EPrcAction.OBJ_BASE_INIT_CREATE, technicalUser, null, null);
 			order.setObjName(name);
-			order.setUserName(userName);
+			order.setUsername(userName);
 			order.setPassword(encoder.encode(password));
 			orderUserSvc.execAction(order, EPrcAction.OBJ_BASE_CREATE_VFY, ObjUser.class);
 		}
@@ -169,11 +169,11 @@ public class UserSvcImpl implements UserSvc {
 		System.err.println(objUser.getName());
 
 		// CREATE ORDER
-		OrderObjUser orderUser = orderUserSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER,
-				EPrcAction.OBJ_BASE_INIT_CREATE, objUser, null, OrderObjUser.class, null);
+		OrderObjUser orderUser = orderUserSvc.createOrder(EBusinessType.OBJ_USER,
+				EPrcAction.OBJ_BASE_INIT_CREATE, objUser, null,  null);
 		orderUser.setAdvText("Create new user called James Madison");
 		orderUser.setObjName("James Madison");
-		orderUser.setUserName("JAMES_MADISON");
+		orderUser.setUsername("JAMES_MADISON");
 		orderUser.setPassword(encoder.encode("JAMES_MADISON"));
 		orderUser.setValueDate(controlSvc.getMinDateLocalDateTime());
 		// VFY ORDER (persisting object
@@ -183,11 +183,11 @@ public class UserSvcImpl implements UserSvc {
 		orderUser = null;
 
 		// OPEN USER AND MODIFY HIS NAME
-		orderUser = orderUserSvc.createOrder(EOrderType.MASTER_DATA, EBusinessType.OBJ_USER,
-				EPrcAction.OBJ_BASE_INIT_MDF, objUser, null, OrderObjUser.class, createdUser);
+		orderUser = orderUserSvc.createOrder(EBusinessType.OBJ_USER,
+				EPrcAction.OBJ_BASE_INIT_MDF, objUser, null, createdUser);
 		orderUser.setAdvText("Change name of user 'James Madison' to 'James Miller'");
 		orderUser.setObjName("James Miller");
-		orderUser.setUserName("JAMES_MILLER");
+		orderUser.setUsername("JAMES_MILLER");
 		orderUserSvc.execAction(orderUser, EPrcAction.OBJ_BASE_MDF_HOLD, ObjUser.class);
 	}
 }

@@ -1,7 +1,7 @@
 package com.merchantvessel.core.business.enumeration;
 
 public enum EDataKind {
-	MASTER_DATA("Master DAta"), TRX_DATA("Transaction Data");
+	MASTER_DATA("Master Data"), TRX_DATA("Transaction Data");
 
 	public final String name;
 

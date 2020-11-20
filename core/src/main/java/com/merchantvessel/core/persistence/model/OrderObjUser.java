@@ -10,7 +10,7 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.merchantvessel.core.business.enumeration.EBusinessType;
-import com.merchantvessel.core.business.enumeration.EOrderType;
+import com.merchantvessel.core.business.enumeration.EDataKind;
 
 @Entity
 @Table(name = "order_user")
@@ -20,7 +20,7 @@ public class OrderObjUser extends Order implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Column(name = "OBJ_USER_NAME")
-	private String userName;
+	private String username;
 
 	@Size(max = 120)
 	@Column(name = "OBJ_PASSWORD")
@@ -30,16 +30,18 @@ public class OrderObjUser extends Order implements Serializable {
 		super();
 	}
 
-	public OrderObjUser(@NotNull EOrderType orderType, @NotNull EBusinessType businessType, @NotNull ObjUser user) {
-		super(orderType, businessType, user);
+	public OrderObjUser(@NotNull EDataKind dataKind, @NotNull EBusinessType businessType, @NotNull ObjUser user) {
+		super(dataKind, businessType, user);
 	}
 
-	public String getUserName() {
-		return userName;
+
+
+	public String getUsername() {
+		return username;
 	}
 
-	public void setUserName(String userName) {
-		this.userName = userName;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 	public static long getSerialversionuid() {

@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.merchantvessel.core.business.enumeration.EBusinessType;
-import com.merchantvessel.core.business.enumeration.EOrderType;
+import com.merchantvessel.core.business.enumeration.EDataKind;
 import com.merchantvessel.core.business.enumeration.EPrcAction;
 import com.merchantvessel.core.persistence.model.Obj;
 import com.merchantvessel.core.persistence.model.ObjUser;
@@ -83,7 +83,7 @@ public class OrderSvc {
 		}
 
 		List<EBusinessType> businessTypes = new ArrayList<EBusinessType>();
-		businessTypes.add(order.getOrderType() == EOrderType.MASTER_DATA ? EBusinessType.OBJ_BASE : null);
+		businessTypes.add(order.getDataKind() == EDataKind.MASTER_DATA ? EBusinessType.OBJ_BASE : null);
 		businessTypes.add(order.getBusinessType());
 
 		// PRC ACTION BUSINESS TYPE COMPATIBLE WITH ORDER BUSINESS TYPE
@@ -108,7 +108,7 @@ public class OrderSvc {
 		}
 
 		// MASTER DATA ORDERS
-		if (order.getOrderType() == EOrderType.MASTER_DATA) {
+		if (order.getDataKind() == EDataKind.MASTER_DATA) {
 
 			// DOES ORDER PERSIST OBJECT?
 			if (prcAction.isPersistObj()) {
@@ -193,8 +193,8 @@ public class OrderSvc {
 		}
 
 		// ENSURE ORDER IS OF TYPE MASTER_DATA
-		if (order.getOrderType() != EOrderType.MASTER_DATA) {
-			logSvc.write("OrderSvc.persistOrderObj(Order)", "Order must be of type '" + EOrderType.MASTER_DATA.getName()
+		if (order.getDataKind() != EDataKind.MASTER_DATA) {
+			logSvc.write("OrderSvc.persistOrderObj(Order)", "Order must be of type '" + EDataKind.MASTER_DATA.getName()
 					+ "' in order for its Object to be persisted!");
 			return null;
 		}
@@ -242,45 +242,59 @@ public class OrderSvc {
 
 	public LocalDateTime getValueDate(Order order, LocalDateTime valueDate) {
 		if (valueDate == null) {
-			valueDate = order.getOrderType() == EOrderType.MASTER_DATA ? controlSvc.getMinDateLocalDateTime()
+			valueDate = order.getDataKind() == EDataKind.MASTER_DATA ? controlSvc.getMinDateLocalDateTime()
 					: controlSvc.getFinDate();
 		}
 		return valueDate;
 	}
 
-	public <OrderClassType extends Order> OrderClassType createOrder(@NotNull EOrderType orderType,
-			@NotNull EBusinessType businessType, @NotNull EPrcAction prcAction, @NotNull ObjUser objUser,
-			LocalDateTime valueDate, @NotNull Class<?> orderClass, Obj obj) {
+	/*
+	 * ----------------------------------------------------- CREATE ORDER
+	 * -----------------------------------------------------
+	 */
+	public <OrderClassType extends Order> OrderClassType createOrder(@NotNull EBusinessType businessType,
+			@NotNull EPrcAction prcAction, @NotNull ObjUser objUser, LocalDateTime valueDate, Obj obj) {
+
+		EDataKind dataKind = businessType.getDataKind();
+		Class orderClass = businessType.getOrderClass();
+
+		if (dataKind == EDataKind.MASTER_DATA) {
+
+			// ENSURE OBJ EXISTS
+			if (((prcAction.isLockObj() && !prcAction.isCreateObj()) || prcAction.isPersistObj()
+					|| prcAction.isReleaseObj()) && obj == null) {
+				logSvc.write("OrderSvc.createOrder()", "Order cannot be created: Object is missing! User: "
+						+ objUser.getName() + " : " + businessType.getName());
+				return null;
+			}
+
+			// ENSURE OBJ IS NOT LOCKED
+			if (obj != null && obj.getOrder() != null) {
+				logSvc.write("OrderSvc.createOrder()", "Order cannot proceed: Object with ID: " + obj.getId()
+						+ " is locked by Order ID: " + obj.getOrder().getId());
+				return null;
+			}
+		}
 
 		OrderClassType order = null;
-
-		// ENSURE OBJ IS NOT LOCKED
-		if (((prcAction.isLockObj() && !prcAction.isCreateObj()) || prcAction.isPersistObj()
-				|| prcAction.isReleaseObj()) && obj == null) {
-			logSvc.write("OrderSvc.createOrder()", "Order cannot be created: Object is missing! User: "
-					+ objUser.getName() + " : " + businessType.getName());
-			return null;
-		}
-
-		if (obj != null && obj.getOrder() != null) {
-			logSvc.write("OrderSvc.createOrder()", "Order cannot proceed: Object with ID: " + obj.getId()
-					+ " is locked by Order ID: " + obj.getOrder().getId());
-			return null;
-		}
 
 		// CREATE ORDER
 		try {
 			order = (OrderClassType) orderClass.getDeclaredConstructor().newInstance();
 
-			order.setOrderType(orderType);
+			order.setDataKind(dataKind);
 			order.setBusinessType(businessType);
 			order.setObjUser(objUser);
 			order.setValueDate(getValueDate(order, valueDate));
+			String advText = prcAction.getName();
 
 			if (obj != null) {
+				advText = advText + ": Object Name: " + obj.getName();
 				order = setOrderFieldsGeneric(obj, order);
 				order = setOrderFields(obj, order);
 			}
+
+			order.setAdvText(advText);
 
 		} catch (InstantiationException e) {
 			e.printStackTrace();

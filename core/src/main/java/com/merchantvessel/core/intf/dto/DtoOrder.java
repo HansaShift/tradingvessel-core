@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 import com.merchantvessel.core.business.enumeration.EBusinessType;
-import com.merchantvessel.core.business.enumeration.EOrderType;
+import com.merchantvessel.core.business.enumeration.EDataKind;
 import com.merchantvessel.core.business.enumeration.EPrcStatus;
 import com.merchantvessel.core.persistence.model.Obj;
 import com.merchantvessel.core.persistence.model.Order;
@@ -13,16 +13,15 @@ public class DtoOrder {
 
 	private Long id;
 
-	private double qty;
-
-	private EOrderType orderType;
+	private EDataKind dataKind;
+	private String orderTypeName;
 
 	private EPrcStatus prcStatus;
+	private String prcStatusName;
 
 	private String advText;
 
 	private Long assetId;
-
 	private String assetName;
 
 	private Date timestampCreate;
@@ -32,26 +31,19 @@ public class DtoOrder {
 	private Long objUserId;
 	private String objUserName;
 
-	private String orderTypeName;
-
 	private EBusinessType businessType;
-
 	private String businessTypeName;
-
-	private String prcStatusName;
 
 	private LocalDateTime valueDate;
 
-	private Obj obj;
-
+	private Long objId;
 	private String objName;
-
 	private Date objCloseDate;
 
 	public DtoOrder(Order order) {
 		this.id = order.getId();
-		this.orderType = order.getOrderType();
-		this.orderTypeName = order.getOrderType().getName();
+		this.dataKind = order.getDataKind();
+		this.orderTypeName = order.getDataKind().getName();
 		this.businessType = order.getBusinessType();
 		this.businessTypeName = order.getBusinessType().getName();
 		this.prcStatus = order.getPrcStatus();
@@ -60,7 +52,7 @@ public class DtoOrder {
 		this.timestampCreate = order.getTimestampCreate();
 		this.timestampModified = order.getTimestampModified();
 		this.valueDate = order.getValueDate();
-		this.obj = order.getObj();
+		this.objId = order.getObj().getId();
 		this.objUserId = order.getObjUser().getId();
 		this.objUserName = order.getObjUser().getName();
 		this.objName = order.getObjName();
@@ -75,20 +67,12 @@ public class DtoOrder {
 		this.id = id;
 	}
 
-	public double getQty() {
-		return qty;
+	public EDataKind getDataKind() {
+		return dataKind;
 	}
 
-	public void setQty(double qty) {
-		this.qty = qty;
-	}
-
-	public EOrderType getOrderType() {
-		return orderType;
-	}
-
-	public void setOrderType(EOrderType orderType) {
-		this.orderType = orderType;
+	public void setOrderType(EDataKind dataKind) {
+		this.dataKind = dataKind;
 	}
 
 	public EPrcStatus getPrcStatus() {
@@ -195,12 +179,12 @@ public class DtoOrder {
 		this.valueDate = valueDate;
 	}
 
-	public Obj getObj() {
-		return obj;
+	public Long getObjId() {
+		return objId;
 	}
 
-	public void setObj(Obj obj) {
-		this.obj = obj;
+	public void setObjId(Long objId) {
+		this.objId = objId;
 	}
 
 	public String getObjName() {

@@ -24,7 +24,7 @@ public class OrderObjUserSvc extends OrderSvc {
 			OrderClassType order) {
 		ObjUser objUser = (ObjUser) obj;
 		OrderObjUser orderUser = (OrderObjUser) order;
-		objUser.setUsername(orderUser.getUserName());
+		objUser.setUsername(orderUser.getUsername());
 		objUser.setPassword(orderUser.getPassword());
 		return (ObjClassType) objUser;
 	}
@@ -35,7 +35,7 @@ public class OrderObjUserSvc extends OrderSvc {
 			OrderClassType order) {
 		ObjUser objUser = (ObjUser) obj;
 		OrderObjUser orderUser = (OrderObjUser) order;
-		orderUser.setUserName(objUser.getUsername());
+		orderUser.setUsername(objUser.getUsername());
 		orderUser.setPassword(objUser.getPassword());
 		return (OrderClassType) orderUser;
 	}

@@ -25,7 +25,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.merchantvessel.core.business.enumeration.EBusinessType;
-import com.merchantvessel.core.business.enumeration.EOrderType;
+import com.merchantvessel.core.business.enumeration.EDataKind;
 import com.merchantvessel.core.business.enumeration.EPrcStatus;
 
 @Entity
@@ -42,8 +42,8 @@ public class Order implements Serializable {
 
 	@NotNull
 	@Enumerated(EnumType.STRING)
-	@Column(name = "ORDER_TYPE")
-	private EOrderType orderType;
+	@Column(name = "DATA_KIND")
+	private EDataKind dataKind;
 
 	@NotNull
 	@Enumerated(EnumType.STRING)
@@ -90,12 +90,12 @@ public class Order implements Serializable {
 	public Order() {
 	}
 
-	public Order(@NotNull EOrderType orderType, @NotNull EBusinessType businessType, @NotNull ObjUser user) {
+	public Order(@NotNull EDataKind dataKind, @NotNull EBusinessType businessType, @NotNull ObjUser user) {
 		super();
-		this.prcStatus = orderType == EOrderType.MASTER_DATA ? EPrcStatus.OBJ_BASE_INIT : null;
-		this.advText = orderType.getName() + " Order of Type '" + businessType.getName() + "' by user '"
+		this.prcStatus = dataKind == EDataKind.MASTER_DATA ? EPrcStatus.OBJ_BASE_INIT : null;
+		this.advText = dataKind.getName() + " Order of Type '" + businessType.getName() + "' by user '"
 				+ user.getName() + "'";
-		this.orderType = orderType;
+		this.dataKind = dataKind;
 		this.businessType = businessType;
 		this.objUser = user;
 	}
@@ -108,12 +108,12 @@ public class Order implements Serializable {
 		this.id = id;
 	}
 
-	public EOrderType getOrderType() {
-		return orderType;
+	public EDataKind getDataKind() {
+		return dataKind;
 	}
 
-	public void setOrderType(EOrderType orderType) {
-		this.orderType = orderType;
+	public void setDataKind(EDataKind orderType) {
+		this.dataKind = orderType;
 	}
 
 	public EBusinessType getBusinessType() {
@@ -169,7 +169,7 @@ public class Order implements Serializable {
 	}
 
 	public void setObjName(String objName) {
-		if (this.orderType != EOrderType.MASTER_DATA) {
+		if (this.dataKind != EDataKind.MASTER_DATA) {
 			System.err.println("Only master data orders can have an object name!");
 		} else {
 			this.objName = objName;
@@ -182,7 +182,7 @@ public class Order implements Serializable {
 	}
 
 	public void setObjCloseDate(Date objCloseDate) {
-		if (this.orderType != EOrderType.MASTER_DATA) {
+		if (this.dataKind != EDataKind.MASTER_DATA) {
 			System.err.println("Only master data orders can have an object close date!");
 		} else {
 			this.objCloseDate = objCloseDate;
