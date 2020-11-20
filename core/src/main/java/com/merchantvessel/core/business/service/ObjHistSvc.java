@@ -17,7 +17,6 @@ public class ObjHistSvc {
 	private ObjHistRepo objHistRepo;
 
 	public ObjHistSvc() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public ObjHist save(ObjHist objHist) {

@@ -32,6 +32,7 @@ public class ObjSvc {
 
 	}
 
+	// TODO: create OBJ_HIST entries using reflection for business type specific object history
 	public ObjHist historizeObj(Obj obj, Order order) {
 
 		List<ObjHist> objHistList = new ArrayList<ObjHist>();
@@ -43,7 +44,6 @@ public class ObjSvc {
 		} else {
 			objHistList = objHistSvc.getObjHistByObjAndValidFrom(obj, validFrom);
 		}
-		// TODO: change to all objHist entries with valid_from dates greater validFrom
 
 		if (objHistList.size() == 0) {
 			// CASE 1: HISTORY DOES NOT EXIST
