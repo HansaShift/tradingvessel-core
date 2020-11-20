@@ -175,7 +175,7 @@ public class UserSvcImpl implements UserSvc {
 		orderUser.setObjName("James Madison");
 		orderUser.setUsername("JAMES_MADISON");
 		orderUser.setPassword(encoder.encode("JAMES_MADISON"));
-		orderUser.setValueDate(controlSvc.getMinDateLocalDateTime());
+//		orderUser.setValueDate(controlSvc.getMinDateLocalDateTime());
 		// VFY ORDER (persisting object
 		orderUser = orderUserSvc.<ObjUser, OrderObjUser>execAction(orderUser, EPrcAction.OBJ_BASE_CREATE_VFY,
 				ObjUser.class);
@@ -188,6 +188,7 @@ public class UserSvcImpl implements UserSvc {
 		orderUser.setAdvText("Change name of user 'James Madison' to 'James Miller'");
 		orderUser.setObjName("James Miller");
 		orderUser.setUsername("JAMES_MILLER");
-		orderUserSvc.execAction(orderUser, EPrcAction.OBJ_BASE_MDF_HOLD, ObjUser.class);
+//		orderUser.setValueDate(controlSvc.getFinDate());
+		orderUserSvc.execAction(orderUser, EPrcAction.OBJ_BASE_MDF_VFY, ObjUser.class);
 	}
 }

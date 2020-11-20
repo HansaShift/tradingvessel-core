@@ -1,6 +1,8 @@
 package com.merchantvessel.core.business.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,48 +23,76 @@ public class ObjSvc {
 	private ObjRepo objRepo;
 
 	@Autowired
-	private ObjHistRepo objHistRepo;
-
+	private ObjHistSvc objHistSvc;
 	@Autowired
 	private LogSvc logSvc;
-
-	public ObjHist getLatestObjHist(Obj obj) {
-		ObjHist objHist = objHistRepo.findTopByObjId(obj);
-		return objHist;
-	}
 
 	public Obj saveNoHist(Obj obj) {
 		return objRepo.save(obj);
 
 	}
 
+	public ObjHist historizeObj(Obj obj, Order order) {
+
+		List<ObjHist> objHistList = new ArrayList<ObjHist>();
+		ObjHist objHistNew = null;
+		LocalDateTime validFrom = order.getValueDate();
+
+		if (validFrom == null) {
+			objHistList = objHistSvc.getObjHistByObj(obj);
+		} else {
+			objHistList = objHistSvc.getObjHistByObjAndValidFrom(obj, validFrom);
+		}
+		// TODO: change to all objHist entries with valid_from dates greater validFrom
+
+		if (objHistList.size() == 0) {
+			// CASE 1: HISTORY DOES NOT EXIST
+			validFrom = validFrom != null ? validFrom : controlSvc.getMinDateLocalDateTime();
+			objHistNew = new ObjHist(obj, order, validFrom, controlSvc.getMaxDateLocalDateTime(), true);
+			objHistNew = objHistSvc.save(objHistNew);
+		} else {
+
+			// CASE 2: HISTORY EXISTS
+			validFrom = validFrom != null ? validFrom : controlSvc.getFinDate();
+
+			// ADJUST EXISTING OBJ_HIST ENTRIES
+			for (ObjHist objHist : objHistList) {
+
+				objHist.setValidTo(validFrom.minusSeconds(1));
+
+				// INVALIDATE OVERRIDEN HISTORY ENTRIES
+				if (objHist.getValidFrom().isAfter(objHist.getValidTo())) {
+					objHist.setValid(false);
+				}
+				objHistSvc.save(objHist);
+			}
+
+			objHistNew = new ObjHist(obj, order, validFrom, controlSvc.getMaxDateLocalDateTime(), true);
+			objHistNew = objHistSvc.save(objHistNew);
+		}
+
+		return objHistNew;
+	}
+
 	public Obj save(Obj obj, Order order) {
+
 		obj = objRepo.save(obj);
+
+		if (obj.getId() == null) {
+			logSvc.write("ObjSvc.save(Obj, Order)", "Object could not be saved");
+		}
 
 		if (order == null) {
 			return obj;
 		}
 
-		ObjHist objHist = getLatestObjHist(obj);
-		LocalDateTime validFrom = order.getValueDate();
-		if (objHist == null) {
-			// CASE 1: History DOES NOT exist
-			// Ensure Valid From is defined
-			validFrom = validFrom != null ? validFrom : controlSvc.getMinDateLocalDateTime();
-			objHist = new ObjHist(obj, order, validFrom, controlSvc.getMaxDateLocalDateTime());
-			objHistRepo.save(objHist);
-		} else {
-			// CASE 2: History exists
-			// Ensure Valid From is defined
-			validFrom = validFrom == null ? validFrom : controlSvc.getFinDate();
-			objHist.setValidTo(validFrom.minusSeconds(1));
-			objHistRepo.save(objHist);
-			objHist = null;
-			objHist = new ObjHist(obj, order, validFrom, controlSvc.getMaxDateLocalDateTime());
-			objHistRepo.save(objHist);
+		ObjHist objHist = historizeObj(obj, order);
+		if (objHist.getId() == null) {
+			logSvc.write("ObjSvc.save(Obj, Order)", "Object with ID: " + obj.getId() + " could not be historized!");
+			return null;
 		}
 
-		return objRepo.save(obj);
+		return obj;
 	}
 
 	public boolean validateObjName(String objName) {

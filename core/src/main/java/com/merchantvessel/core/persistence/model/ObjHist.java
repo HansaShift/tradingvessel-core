@@ -83,11 +83,15 @@ public class ObjHist implements Serializable {
 	@Column(name = "VALID_TO")
 	private LocalDateTime validTo;
 
+	@NotNull
+	@Column(name = "VALID")
+	private boolean valid;
+
 	public ObjHist() {
 	}
 
 	public ObjHist(@NotNull Obj obj, @NotNull Order order, @NotNull LocalDateTime validFrom,
-			@NotNull LocalDateTime validTo) {
+			@NotNull LocalDateTime validTo, @NotNull boolean valid) {
 		super();
 		this.orderId = order;
 		this.objId = obj;
@@ -98,6 +102,7 @@ public class ObjHist implements Serializable {
 		this.closeDate = obj.getCloseDate();
 		this.validFrom = validFrom;
 		this.validTo = validTo;
+		this.valid = valid;
 	}
 
 	public Long getId() {
@@ -190,6 +195,14 @@ public class ObjHist implements Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public boolean isValid() {
+		return valid;
+	}
+
+	public void setValid(boolean valid) {
+		this.valid = valid;
 	}
 
 }

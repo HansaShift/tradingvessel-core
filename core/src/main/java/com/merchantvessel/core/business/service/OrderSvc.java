@@ -240,12 +240,21 @@ public class OrderSvc {
 		return orderRepo.getOne(id);
 	}
 
-	public LocalDateTime getValueDate(Order order, LocalDateTime valueDate) {
-		if (valueDate == null) {
-			valueDate = order.getDataKind() == EDataKind.MASTER_DATA ? controlSvc.getMinDateLocalDateTime()
-					: controlSvc.getFinDate();
+	public LocalDateTime generateValueDate(Order order, Obj obj, LocalDateTime valueDate) {
+
+		if (valueDate != null) {
+			return valueDate;
 		}
-		return valueDate;
+
+		if (order.getDataKind() == EDataKind.MASTER_DATA) {
+			if (obj == null) {
+				return controlSvc.getMinDateLocalDateTime();
+			} else {
+				return controlSvc.getFinDate();
+			}
+		} else {
+			return controlSvc.getFinDate();
+		}
 	}
 
 	/*
@@ -285,14 +294,15 @@ public class OrderSvc {
 			order.setDataKind(dataKind);
 			order.setBusinessType(businessType);
 			order.setObjUser(objUser);
-			order.setValueDate(getValueDate(order, valueDate));
 			String advText = prcAction.getName();
-
+			
 			if (obj != null) {
 				advText = advText + ": Object Name: " + obj.getName();
 				order = setOrderFieldsGeneric(obj, order);
 				order = setOrderFields(obj, order);
 			}
+
+			order.setValueDate(generateValueDate(order, obj, valueDate));
 
 			order.setAdvText(advText);
 
