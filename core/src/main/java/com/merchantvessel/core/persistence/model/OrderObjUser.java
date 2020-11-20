@@ -15,7 +15,7 @@ import com.merchantvessel.core.business.enumeration.EOrderType;
 @Entity
 @Table(name = "order_user")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OrderUser extends Order implements Serializable {
+public class OrderObjUser extends Order implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,11 +26,11 @@ public class OrderUser extends Order implements Serializable {
 	@Column(name = "OBJ_PASSWORD")
 	private String password;
 
-	public OrderUser() {
+	public OrderObjUser() {
 		super();
 	}
 
-	public OrderUser(@NotNull EOrderType orderType, @NotNull EBusinessType businessType, @NotNull ObjUser user) {
+	public OrderObjUser(@NotNull EOrderType orderType, @NotNull EBusinessType businessType, @NotNull ObjUser user) {
 		super(orderType, businessType, user);
 	}
 

@@ -1,7 +1,5 @@
 package com.merchantvessel.core.persistence.demo_data;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +9,6 @@ import com.merchantvessel.core.business.service.LogSvc;
 import com.merchantvessel.core.business.service.RoleSvc;
 import com.merchantvessel.core.business.service.UserSvc;
 import com.merchantvessel.core.persistence.model.CtrlVar;
-import com.merchantvessel.core.persistence.model.Log;
 
 @Component
 public class DemoDataLoader {
@@ -20,9 +17,10 @@ public class DemoDataLoader {
 
 	@Autowired
 	private UserSvc userSvc;
-//
+
 	@Autowired
 	private LogSvc logSvc;
+
 	@Autowired
 	private ControlSvc controlSvc;
 
@@ -57,10 +55,10 @@ public class DemoDataLoader {
 		}
 		roleSvc.createRoles();
 		userSvc.createUsers();
-		controlSvc.setVal(ECtrlVar.DEMO_DATA_CREATED, true);
-		List<Log> logList = logSvc.getAll();
 
-		if (logList.size() > 0) {
+		controlSvc.setVal(ECtrlVar.DEMO_DATA_CREATED, true);
+
+		if (logSvc.getAll().size() > 0) {
 			System.err.println("There are logs in the database:");
 		}
 		System.err.println("Demo data loaded");

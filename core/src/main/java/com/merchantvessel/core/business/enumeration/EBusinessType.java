@@ -5,6 +5,7 @@ import com.merchantvessel.core.persistence.model.ObjUser;
 public enum EBusinessType {
 
 	OBJ_BASE("Base", EDataKind.MASTER_DATA, null), OBJ_USER("User", EDataKind.MASTER_DATA, ObjUser.class),
+	OBJ_ASSET("Base", EDataKind.MASTER_DATA, null), OBJ_PARTY("Base", EDataKind.MASTER_DATA, null),
 	OBJ_ROLE("Role", EDataKind.MASTER_DATA, null);
 
 	public final String name;

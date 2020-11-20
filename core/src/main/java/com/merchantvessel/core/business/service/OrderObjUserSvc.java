@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.merchantvessel.core.persistence.model.Obj;
 import com.merchantvessel.core.persistence.model.ObjUser;
 import com.merchantvessel.core.persistence.model.Order;
-import com.merchantvessel.core.persistence.model.OrderUser;
+import com.merchantvessel.core.persistence.model.OrderObjUser;
 
 /**
  * TODO: Enable business type specific method overrides to set Business type
@@ -16,14 +16,14 @@ import com.merchantvessel.core.persistence.model.OrderUser;
  *
  */
 @Service
-public class OrderUserSvc extends OrderSvc {
+public class OrderObjUserSvc extends OrderSvc {
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <ObjClassType extends Obj, OrderClassType extends Order> ObjClassType setObjFields(ObjClassType obj,
 			OrderClassType order) {
 		ObjUser objUser = (ObjUser) obj;
-		OrderUser orderUser = (OrderUser) order;
+		OrderObjUser orderUser = (OrderObjUser) order;
 		objUser.setUsername(orderUser.getUserName());
 		objUser.setPassword(orderUser.getPassword());
 		return (ObjClassType) objUser;
@@ -34,7 +34,7 @@ public class OrderUserSvc extends OrderSvc {
 	public <ObjType extends Obj, OrderClassType extends Order> OrderClassType setOrderFields(ObjType obj,
 			OrderClassType order) {
 		ObjUser objUser = (ObjUser) obj;
-		OrderUser orderUser = (OrderUser) order;
+		OrderObjUser orderUser = (OrderObjUser) order;
 		orderUser.setUserName(objUser.getUsername());
 		orderUser.setPassword(objUser.getPassword());
 		return (OrderClassType) orderUser;
