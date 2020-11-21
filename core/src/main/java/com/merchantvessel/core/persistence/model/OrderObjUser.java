@@ -30,8 +30,8 @@ public class OrderObjUser extends Order implements Serializable {
 		super();
 	}
 
-	public OrderObjUser(@NotNull EDataKind dataKind, @NotNull EBusinessType businessType, @NotNull ObjUser user) {
-		super(dataKind, businessType, user);
+	public OrderObjUser(@NotNull EBusinessType businessType, @NotNull ObjUser user) {
+		super(businessType, user);
 	}
 
 

@@ -32,7 +32,8 @@ public class ObjSvc {
 
 	}
 
-	// TODO: create OBJ_HIST entries using reflection for business type specific object history
+	// TODO: create OBJ_HIST entries using reflection for business type specific
+	// object history
 	public ObjHist historizeObj(Obj obj, Order order) {
 
 		List<ObjHist> objHistList = new ArrayList<ObjHist>();
@@ -96,15 +97,15 @@ public class ObjSvc {
 	}
 
 	public boolean validateObjName(String objName) {
-		if (objName == null || objName.trim() == "") {
-			logSvc.write("ObjSvc.validateObjName()", "Validation Failed: Order has no object name.");
+
+		if (objName == null || objName.trim().length() == 0) {
+			logSvc.write("ObjSvc.validateObjName()", "Validation Failed: Object name is missing.");
 			return false;
 		}
 		return true;
 	}
 
 	public boolean validateObjCloseDate(Order order) {
-
 		if (order.getObjCloseDate() != null) {
 			if (order.getObj() == null) {
 				logSvc.write("ObjSvc.validateObjCloseDate()",

@@ -155,7 +155,7 @@ public class OrderSvc {
 		return order;
 	}
 
-	private boolean validateObjOrder(Order order) {
+	public boolean validateObjOrder(Order order) {
 
 		// VALIDATE OBJ CLOSE DATE
 		if (!objSvc.validateObjCloseDate(order))

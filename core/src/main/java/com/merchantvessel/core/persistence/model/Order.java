@@ -90,12 +90,13 @@ public class Order implements Serializable {
 	public Order() {
 	}
 
-	public Order(@NotNull EDataKind dataKind, @NotNull EBusinessType businessType, @NotNull ObjUser user) {
+	public Order(@NotNull EBusinessType businessType, @NotNull ObjUser user) {
 		super();
-		this.prcStatus = dataKind == EDataKind.MASTER_DATA ? EPrcStatus.OBJ_BASE_INIT : null;
-		this.advText = dataKind.getName() + " Order of Type '" + businessType.getName() + "' by user '"
+		this.dataKind = businessType.getDataKind();
+		this.prcStatus = this.dataKind == EDataKind.MASTER_DATA ? EPrcStatus.OBJ_BASE_INIT : null;
+		this.advText = this.dataKind.getName() + " Order of Type '" + businessType.getName() + "' by user '"
 				+ user.getName() + "'";
-		this.dataKind = dataKind;
+
 		this.businessType = businessType;
 		this.objUser = user;
 	}
@@ -169,9 +170,7 @@ public class Order implements Serializable {
 	}
 
 	public void setObjName(String objName) {
-		if (this.dataKind != EDataKind.MASTER_DATA) {
-			System.err.println("Only master data orders can have an object name!");
-		} else {
+		if (this.dataKind == EDataKind.MASTER_DATA) {
 			this.objName = objName;
 		}
 
@@ -182,9 +181,7 @@ public class Order implements Serializable {
 	}
 
 	public void setObjCloseDate(Date objCloseDate) {
-		if (this.dataKind != EDataKind.MASTER_DATA) {
-			System.err.println("Only master data orders can have an object close date!");
-		} else {
+		if (this.dataKind == EDataKind.MASTER_DATA) {
 			this.objCloseDate = objCloseDate;
 		}
 	}
