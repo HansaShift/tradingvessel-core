@@ -67,8 +67,8 @@ public class AuthController {
 
 	@PostMapping("/signup")
 	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-		return userSvcImpl.registerUser(signUpRequest.getUsername(), signUpRequest.getPassword(),
-				signUpRequest.getRole());
+		return ResponseEntity.ok(userSvcImpl.registerUser(signUpRequest.getUsername(), signUpRequest.getPassword(),
+				signUpRequest.getRole()));
 	}
 
 }

@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -68,7 +66,7 @@ public class OrderController {
 			@PathVariable EPrcAction prcAction) {
 		ObjUser objUser = getByAuthentication(authentication);
 		LocalDateTime valueDate = null;
-		orderSvc.createOrder(businessType, prcAction, objUser, valueDate , null);
+		orderSvc.createOrder(businessType, prcAction, objUser, valueDate, null);
 		return null;
 	}
 }

@@ -22,13 +22,13 @@ public class ObjHistSvc {
 	public ObjHist save(ObjHist objHist) {
 		return objHistRepo.save(objHist);
 	}
-	
+
 	public List<ObjHist> getObjHistByObj(Obj obj) {
 		return objHistRepo.findByObjId(obj);
 	}
+
 	public List<ObjHist> getObjHistByObjAndValidFrom(Obj obj, LocalDateTime valueDate) {
-		return objHistRepo.findByObjIdAndValidToGreaterThanEqual(obj, valueDate);	
+		return objHistRepo.findByObjIdAndValidToGreaterThanEqual(obj, valueDate);
 	}
-	
 
 }

@@ -1,6 +1,6 @@
 package com.merchantvessel.core.business.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Date;
 

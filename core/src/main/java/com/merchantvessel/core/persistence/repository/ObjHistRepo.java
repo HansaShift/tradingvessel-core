@@ -13,5 +13,6 @@ import com.merchantvessel.core.persistence.model.ObjHist;
 public interface ObjHistRepo extends JpaRepository<ObjHist, Long> {
 
 	List<ObjHist> findByObjIdAndValidToGreaterThanEqual(Obj obj, LocalDateTime valueDate);
+
 	List<ObjHist> findByObjId(Obj obj);
 }

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import com.merchantvessel.core.persistence.model.Obj;
 import com.merchantvessel.core.persistence.model.ObjHist;
 import com.merchantvessel.core.persistence.model.Order;
-import com.merchantvessel.core.persistence.repository.ObjHistRepo;
 import com.merchantvessel.core.persistence.repository.ObjRepo;
 
 @Service

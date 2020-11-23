@@ -54,7 +54,7 @@ public class ControlSvc {
 		CtrlVar ctrlVarFinDate = getByEnum(ECtrlVar.FIN_DATE);
 
 		LocalDateTime finDateDB = null;
-		
+
 		if (ctrlVarFinDate != null) {
 			finDateDB = ctrlVarFinDate.getValDate();
 		}

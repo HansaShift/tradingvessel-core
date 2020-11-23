@@ -1,7 +1,7 @@
 package com.merchantvessel.core.business.enumeration;
 
 public enum ERole {
-	ROLE_TRADER("Trader"), ROLE_BROKER("Broker"), ROLE_ADMIN("Administrator");
+	ROLE_TRADER("TRADER"), ROLE_BROKER("BROKER"), ROLE_ADMIN("ADMIN");
 
 	public final String name;
 

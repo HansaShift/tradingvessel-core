@@ -295,7 +295,7 @@ public class OrderSvc {
 			order.setBusinessType(businessType);
 			order.setObjUser(objUser);
 			String advText = prcAction.getName();
-			
+
 			if (obj != null) {
 				advText = advText + ": Object Name: " + obj.getName();
 				order = setOrderFieldsGeneric(obj, order);

@@ -6,7 +6,6 @@ import java.util.Date;
 import com.merchantvessel.core.business.enumeration.EBusinessType;
 import com.merchantvessel.core.business.enumeration.EDataKind;
 import com.merchantvessel.core.business.enumeration.EPrcStatus;
-import com.merchantvessel.core.persistence.model.Obj;
 import com.merchantvessel.core.persistence.model.Order;
 
 public class DtoOrder {

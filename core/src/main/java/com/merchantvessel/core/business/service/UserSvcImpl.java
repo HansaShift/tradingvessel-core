@@ -4,18 +4,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.merchantvessel.core.business.enumeration.EBusinessType;
-import com.merchantvessel.core.business.enumeration.EDataKind;
 import com.merchantvessel.core.business.enumeration.EPrcAction;
 import com.merchantvessel.core.business.enumeration.ERole;
 import com.merchantvessel.core.business.enumeration.EUser;
-import com.merchantvessel.core.intf.dto.MsgResponse;
-import com.merchantvessel.core.persistence.model.Obj;
 import com.merchantvessel.core.persistence.model.ObjRole;
 import com.merchantvessel.core.persistence.model.ObjUser;
 import com.merchantvessel.core.persistence.model.OrderObjUser;
@@ -33,6 +29,9 @@ public class UserSvcImpl implements UserSvc {
 
 	@Autowired
 	UserSvc userSvc;
+
+	@Autowired
+	LogSvc logSvc;
 
 	@Autowired
 	OrderObjUserSvc orderUserSvc;
@@ -76,60 +75,51 @@ public class UserSvcImpl implements UserSvc {
 	public void registerUser(EUser eUser) {
 
 		Set<String> roles = new HashSet<>();
-		roles.add(eUser.getRole().toString());
-		userSvc.registerUser(eUser.toString(), eUser.getName(), eUser.toString(), roles);
+		roles.add(eUser.getRole().getName());
+		ObjUser objUser = userSvc.registerUser(eUser.toString(), eUser.getName(), eUser.toString(), roles);
 	}
 
 	@Override
-	public ResponseEntity<?> registerUser(String userName, String name, String password, Set<String> eRoles) {
+	public ObjUser registerUser(String userName, String name, String password, Set<String> enumRoles) {
 
 		// ---------------------------------------------------------------------
 		// ENSURE USER NAME IS UNIQUE
 		// ---------------------------------------------------------------------
 		if (userRepo.existsByUsername(userName)) {
-			return ResponseEntity.badRequest().body(new MsgResponse("Error: Username is already taken!"));
+			logSvc.write("UserSvcImpl.registerUser()", "User already exists: " + userName);
+			return null;
 		}
 
 		// ---------------------------------------------------------------------
 		// PERSIST USER
 		// ---------------------------------------------------------------------
 		ObjUser technicalUser = userRepo.findByUsername(EUser.TECHNICAL_USER.toString());
+		ObjUser registeredUser = null;
 		if (technicalUser == null && userName == EUser.TECHNICAL_USER.toString()) {
 			ObjUser user = new ObjUser(userName, name, encoder.encode(password));
-			userRepo.save(user);
+			registeredUser = userRepo.save(user);
 		} else {
-			OrderObjUser order = orderUserSvc.createOrder(EBusinessType.OBJ_USER,
-					EPrcAction.OBJ_BASE_INIT_CREATE, technicalUser, null, null);
+
+			// ---------------------------------------------------------------------
+			// INITIALISE ORDER
+			// ---------------------------------------------------------------------
+			OrderObjUser order = orderUserSvc.createOrder(EBusinessType.OBJ_USER, EPrcAction.OBJ_BASE_INIT_CREATE,
+					technicalUser, null, null);
+			// ---------------------------------------------------------------------
+			// SET ATTRIBUTES
+			// ---------------------------------------------------------------------
 			order.setObjName(name);
 			order.setUsername(userName);
 			order.setPassword(encoder.encode(password));
-			orderUserSvc.execAction(order, EPrcAction.OBJ_BASE_CREATE_VFY, ObjUser.class);
+			order.setEnumRoles(enumRoles);
+			order = orderUserSvc.execAction(order, EPrcAction.OBJ_BASE_CREATE_VFY, ObjUser.class);
+			registeredUser = (ObjUser) order.getObj();
 		}
 
-		// ---------------------------------------------------------------------
-		// INSTANTIATE USER
-		// ---------------------------------------------------------------------
-		ObjUser user = new ObjUser(userName, name, encoder.encode(password));
-
-		// ---------------------------------------------------------------------
-		// ADD ROLES
-		// ---------------------------------------------------------------------
-		Set<String> strRoles = eRoles;
-		Set<ObjRole> roles = new HashSet<>();
-
-		if (strRoles == null) {
-			ObjRole userRole = roleRepo.findByName(ERole.ROLE_TRADER.getName());
-			roles.add(userRole);
-		} else {
-			strRoles.forEach(strRole -> {
-				ObjRole role = roleRepo.findByName(strRole);
-				if (role != null) {
-					roles.add(role);
-				}
-			});
+		if (registeredUser.getId() == null) {
+			logSvc.write("UserSvcImpl.registerUser()", "User could not be persisted!");
+			return null;
 		}
-
-		user.setRoles(roles);
 
 		// ---------------------------------------------------------------------
 		// ADD NATURAL PERSON WITH MACC
@@ -142,11 +132,11 @@ public class UserSvcImpl implements UserSvc {
 //			}
 //		}
 
-		return ResponseEntity.ok(new MsgResponse("User registered successfully!"));
+		return null;
 	}
 
 	@Override
-	public ResponseEntity<?> registerUser(String userName, String password, Set<String> eRoles) {
+	public ObjUser registerUser(String userName, String password, Set<String> eRoles) {
 		return registerUser(userName, userName, password, eRoles);
 
 	}
@@ -154,41 +144,17 @@ public class UserSvcImpl implements UserSvc {
 	/*
 	 * Demo Data creation
 	 */
-	public void createUsers() {
-
-		registerUser(EUser.TECHNICAL_USER);
-
+	public void createUsersFromEnum() {
 		for (EUser eUser : EUser.values()) {
-			registerUser(eUser);
+			if (eUser != EUser.TECHNICAL_USER) {
+				registerUser(eUser);
+			}
 		}
 
-		// CREATE USER USING ORDER
-		// GET USER
-		ObjUser objUser = userRepo.findByUsername(EUser.TECHNICAL_USER.toString());
+	}
 
-		System.err.println(objUser.getName());
-
-		// CREATE ORDER
-		OrderObjUser orderUser = orderUserSvc.createOrder(EBusinessType.OBJ_USER,
-				EPrcAction.OBJ_BASE_INIT_CREATE, objUser, null,  null);
-		orderUser.setAdvText("Create new user called James Madison");
-		orderUser.setObjName("James Madison");
-		orderUser.setUsername("JAMES_MADISON");
-		orderUser.setPassword(encoder.encode("JAMES_MADISON"));
-//		orderUser.setValueDate(controlSvc.getMinDateLocalDateTime());
-		// VFY ORDER (persisting object
-		orderUser = orderUserSvc.<ObjUser, OrderObjUser>execAction(orderUser, EPrcAction.OBJ_BASE_CREATE_VFY,
-				ObjUser.class);
-		Obj createdUser = orderUser.getObj();
-		orderUser = null;
-
-		// OPEN USER AND MODIFY HIS NAME
-		orderUser = orderUserSvc.createOrder(EBusinessType.OBJ_USER,
-				EPrcAction.OBJ_BASE_INIT_MDF, objUser, null, createdUser);
-		orderUser.setAdvText("Change name of user 'James Madison' to 'James Miller'");
-		orderUser.setObjName("James Miller");
-		orderUser.setUsername("JAMES_MILLER");
-//		orderUser.setValueDate(controlSvc.getFinDate());
-		orderUserSvc.execAction(orderUser, EPrcAction.OBJ_BASE_MDF_VFY, ObjUser.class);
+	@Override
+	public ObjUser getByEnum(EUser eUser) {
+		return userRepo.findByUsername(eUser.toString());
 	}
 }

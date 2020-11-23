@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.merchantvessel.core.persistence.model.ObjUser;
-import com.merchantvessel.core.persistence.model.Order;
 import com.merchantvessel.core.persistence.model.OrderObjUser;
 
 @Repository

@@ -15,8 +15,15 @@ public class LogSvc {
 	private LogRepo logRepo;
 
 	public void write(String location, String msg) {
+		write(location, msg, false);
+	}
+
+	public void write(String location, String msg, boolean sysErr) {
 		Log log = new Log(location, msg);
 		logRepo.save(log);
+		if (sysErr) {
+			System.err.println(location + " : " + msg);
+		}
 	}
 
 	public List<Log> getAll() {

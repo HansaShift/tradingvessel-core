@@ -1,7 +1,5 @@
 package com.merchantvessel.core.intf.dto;
 
-import javax.validation.constraints.Size;
-
 import com.merchantvessel.core.persistence.model.OrderObjUser;
 
 public class DtoOrderObjUser extends DtoOrder {
@@ -9,7 +7,7 @@ public class DtoOrderObjUser extends DtoOrder {
 	private String username;
 
 	private String password;
-	
+
 	public DtoOrderObjUser(OrderObjUser orderObjUser) {
 		super(orderObjUser);
 		this.username = orderObjUser.getUsername();
@@ -32,5 +30,4 @@ public class DtoOrderObjUser extends DtoOrder {
 		this.password = password;
 	}
 
-	
 }

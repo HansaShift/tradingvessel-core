@@ -2,7 +2,6 @@ package com.merchantvessel.core.business.service;
 
 import java.util.Set;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 
 import com.merchantvessel.core.business.enumeration.ERole;
@@ -13,15 +12,17 @@ public interface UserSvc {
 
 	public void save(ObjUser user);
 
-	ResponseEntity<?> registerUser(String userName, String password, Set<String> strRoles);
+	ObjUser registerUser(String userName, String password, Set<String> strRoles);
 
-	ResponseEntity<?> registerUser(String userName, String name, String password, Set<String> eRoles);
+	ObjUser registerUser(String userName, String name, String password, Set<String> eRoles);
 
 	public ObjUser getByAuthentication(Authentication authentication);
 
 	boolean hasRole(ObjUser user, ERole eRole);
 
-	public void createUsers();
+	public void createUsersFromEnum();
 
 	void registerUser(EUser eUser);
+
+	ObjUser getByEnum(EUser eUser);
 }
