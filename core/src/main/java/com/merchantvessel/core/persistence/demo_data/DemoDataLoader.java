@@ -55,13 +55,17 @@ public class DemoDataLoader {
 		}
 		roleSvc.createRoles();
 		userSvc.createUsers();
-
-		controlSvc.setVal(ECtrlVar.DEMO_DATA_CREATED, true);
-
+		
 		if (logSvc.getAll().size() > 0) {
 			System.err.println("There are logs in the database:");
+		} else {
+			controlSvc.setVal(ECtrlVar.DEMO_DATA_CREATED, true);
+			System.err.println("Demo data loaded successfully");
 		}
-		System.err.println("Demo data loaded");
+		
+
+
+		
 	}
 
 }

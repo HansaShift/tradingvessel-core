@@ -54,6 +54,7 @@ public class ControlSvc {
 		CtrlVar ctrlVarFinDate = getByEnum(ECtrlVar.FIN_DATE);
 
 		LocalDateTime finDateDB = null;
+		
 		if (ctrlVarFinDate != null) {
 			finDateDB = ctrlVarFinDate.getValDate();
 		}
@@ -61,11 +62,9 @@ public class ControlSvc {
 		if (finDateDB == null) {
 			ctrlVarFinDate.setValDate(getCurrentDate());
 			ctrlVarRepo.save(ctrlVarFinDate);
-			return finDateDB;
-		} else {
-
-			return finDateDB;
 		}
+
+		return finDateDB;
 	}
 
 	public int getFinYear() {
