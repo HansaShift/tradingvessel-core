@@ -64,6 +64,7 @@ public class OrderSvc {
 	// -------------------------------------------------------------
 	// EXECUTE PROCESS ACTION
 	// -------------------------------------------------------------
+	@SuppressWarnings("unchecked")
 	public <ObjType extends Obj, OrderClassType extends Order> OrderClassType execAction(OrderClassType order,
 			EPrcAction prcAction) {
 
@@ -109,8 +110,8 @@ public class OrderSvc {
 				}
 
 				// PERSIST OBJECT
-
 				obj = (ObjType) persistOrderObj(order);
+
 				if (obj == null) {
 					logSvc.write("OrderSvc.execAction(Order, EPrcAction)",
 							"Object could not be persisted! Order ID: " + order.getId());
@@ -143,11 +144,10 @@ public class OrderSvc {
 		return order;
 	}
 
-
-
 	// -------------------------------------------------------------
 	// INSTANTIATE ORDER
 	// -------------------------------------------------------------
+	@SuppressWarnings("unchecked")
 	private <OrderClassType extends Order> OrderClassType instantiateOrder(EBusinessType businessType) {
 		OrderClassType order = null;
 
@@ -164,6 +164,7 @@ public class OrderSvc {
 	// -------------------------------------------------------------
 	// INSTANTIATE OBJECT
 	// -------------------------------------------------------------
+	@SuppressWarnings("unchecked")
 	private <ObjType extends Obj> ObjType instantiateObj(Order order) {
 		ObjType obj = null;
 
@@ -179,6 +180,7 @@ public class OrderSvc {
 	// -------------------------------------------------------------
 	// CREATE OBJECT
 	// -------------------------------------------------------------
+	@SuppressWarnings("unchecked")
 	private <ObjType extends Obj> ObjType createObj(Order order) {
 
 		ObjType obj = instantiateObj(order);
@@ -193,6 +195,7 @@ public class OrderSvc {
 	// -------------------------------------------------------------
 	// PERSIST OBJECT
 	// -------------------------------------------------------------
+	@SuppressWarnings("unchecked")
 	private <ObjType extends Obj> ObjType persistOrderObj(Order order) {
 
 		// ENSURE ORDER IS PERSISTED
@@ -231,7 +234,6 @@ public class OrderSvc {
 		return orderRepo.getOne(id);
 	}
 
-
 	// -------------------------------------------------------------
 	// VALIDATE OBJECT EXISTENCE
 	// -------------------------------------------------------------
@@ -262,7 +264,7 @@ public class OrderSvc {
 
 		return true;
 	}
-	
+
 	// -------------------------------------------------------------
 	// CREATE ORDER
 	// -------------------------------------------------------------
@@ -333,7 +335,7 @@ public class OrderSvc {
 			return controlSvc.getFinDate();
 		}
 	}
-	
+
 	// -------------------------------------------------------------
 	// SET ORDER VALUE DATE
 	// -------------------------------------------------------------
