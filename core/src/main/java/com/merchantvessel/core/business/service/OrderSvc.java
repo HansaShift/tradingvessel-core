@@ -63,11 +63,11 @@ public class OrderSvc {
 	}
 
 	public <ObjType extends Obj, OrderClassType extends Order> OrderClassType execAction(OrderClassType order,
-			EPrcAction prcAction, Class<?> objClass) {
+			EPrcAction prcAction) {
 
 		ObjType obj;
 		try {
-			obj = (ObjType) objClass.getDeclaredConstructor().newInstance();
+			obj = (ObjType) order.getBusinessType().getObjClass().getDeclaredConstructor().newInstance();
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -322,7 +322,7 @@ public class OrderSvc {
 
 		order = orderRepo.save(order);
 
-		order = execAction(order, prcAction, order.getBusinessType().getObjClass());
+		order = execAction(order, prcAction);
 		return order;
 	}
 

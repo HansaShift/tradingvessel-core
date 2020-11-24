@@ -112,7 +112,7 @@ public class UserSvcImpl implements UserSvc {
 			order.setUsername(userName);
 			order.setPassword(encoder.encode(password));
 			order.setEnumRoles(enumRoles);
-			order = orderUserSvc.execAction(order, EPrcAction.OBJ_BASE_CREATE_VFY, ObjUser.class);
+			order = orderUserSvc.execAction(order, EPrcAction.OBJ_BASE_CREATE_VFY);
 			registeredUser = (ObjUser) order.getObj();
 		}
 

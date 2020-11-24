@@ -1,6 +1,7 @@
 package com.merchantvessel.core.persistence.model;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CollectionTable;
@@ -13,6 +14,7 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.merchantvessel.core.business.enumeration.EBusinessType;
+import com.merchantvessel.core.business.enumeration.ERole;
 
 @Entity
 @Table(name = "order_user")
@@ -67,5 +69,12 @@ public class OrderObjUser extends Order implements Serializable {
 	public void setEnumRoles(Set<String> enumRoles) {
 		this.enumRoles = enumRoles;
 	}
+	
+	public void addEnumRole(ERole enumRole) {
+		if(this.enumRoles == null) {
+			this.enumRoles = new HashSet<String>();
+		}
+		this.enumRoles.add(enumRole.getName());
+	}	
 
 }
