@@ -233,22 +233,7 @@ public class OrderSvc {
 		return orderRepo.getOne(id);
 	}
 
-	public LocalDateTime generateValueDate(Order order, Obj obj, LocalDateTime valueDate) {
 
-		if (valueDate != null) {
-			return valueDate;
-		}
-
-		if (order.getDataKind() == EDataKind.MASTER_DATA) {
-			if (obj == null) {
-				return controlSvc.getMinDateLocalDateTime();
-			} else {
-				return controlSvc.getFinDate();
-			}
-		} else {
-			return controlSvc.getFinDate();
-		}
-	}
 
 	private boolean validateObjExistence(@NotNull EPrcAction prcAction, @NotNull ObjUser objUser,
 			@NotNull EBusinessType businessType, Obj obj) {
@@ -310,6 +295,23 @@ public class OrderSvc {
 		return advText;
 	}
 
+	public LocalDateTime generateValueDate(Order order, Obj obj, LocalDateTime valueDate) {
+
+		if (valueDate != null) {
+			return valueDate;
+		}
+
+		if (order.getDataKind() == EDataKind.MASTER_DATA) {
+			if (obj == null) {
+				return controlSvc.getMinDateLocalDateTime();
+			} else {
+				return controlSvc.getFinDate();
+			}
+		} else {
+			return controlSvc.getFinDate();
+		}
+	}
+	
 	public void setValueDate(Order order, int year, int month, int day) {
 		Date valueDateAsDate = new GregorianCalendar(year, month, day).getTime();
 		LocalDateTime valueDate = valueDateAsDate.toInstant().atZone(ZoneId.of(controlSvc.getGlobalTimeZone()))
