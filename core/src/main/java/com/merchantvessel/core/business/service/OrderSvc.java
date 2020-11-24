@@ -294,26 +294,18 @@ public class OrderSvc {
 		order.setBusinessType(businessType);
 		order.setObjUser(objUser);
 		order.setValueDate(generateValueDate(order, obj, valueDate));
-		order.setAdvText(generateAdvText(order, prcAction));
-
-		order = orderRepo.save(order);
-		order = execAction(order, prcAction);
-		return order;
-	}
-
-	// -------------------------------------------------------------
-	// CREATE ORDER ADVICE TEXT
-	// -------------------------------------------------------------
-	private String generateAdvText(Order order, EPrcAction prcAction) {
 		String advText = prcAction.getName();
-		Obj obj = order.getObj();
 
 		if (obj != null) {
 			advText = advText + ": Object Name: " + obj.getName();
 			order = setOrderFieldsGeneric(obj, order);
 			order = setOrderFields(obj, order);
 		}
-		return advText;
+		order.setAdvText(advText);
+
+		order = orderRepo.save(order);
+		order = execAction(order, prcAction);
+		return order;
 	}
 
 	// -------------------------------------------------------------

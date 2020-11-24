@@ -4,16 +4,22 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.merchantvessel.core.business.enumeration.EBusinessType;
+import com.merchantvessel.core.business.enumeration.ERole;
 
 @Entity
 @Table(name = "OBJ_USER", uniqueConstraints = { @UniqueConstraint(columnNames = "username") })
@@ -29,9 +35,9 @@ public class ObjUser extends Obj implements Serializable {
 	@Size(max = 120)
 	private String password;
 
-	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "USER_ROLE", joinColumns = @JoinColumn(name = "USER_ID"), inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
-	private Set<ObjRole> roles = new HashSet<>();
+	@ElementCollection
+	@Column(name = "ROLE_SET")
+	private Set<ERole> roleSet = new HashSet<>();
 
 	public ObjUser() {
 		super();
@@ -59,12 +65,16 @@ public class ObjUser extends Obj implements Serializable {
 		this.password = password;
 	}
 
-	public Set<ObjRole> getRoles() {
-		return roles;
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
-	public void setRoles(Set<ObjRole> roles) {
-		this.roles = roles;
+	public Set<ERole> getRoleSet() {
+		return roleSet;
+	}
+
+	public void setRoleSet(Set<ERole> roleSet) {
+		this.roleSet = roleSet;
 	}
 
 }

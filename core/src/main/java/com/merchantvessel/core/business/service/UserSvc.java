@@ -12,10 +12,6 @@ public interface UserSvc {
 
 	public void save(ObjUser user);
 
-	ObjUser registerUser(String userName, String password, Set<String> strRoles);
-
-	ObjUser registerUser(String userName, String name, String password, Set<String> eRoles);
-
 	public ObjUser getByAuthentication(Authentication authentication);
 
 	boolean hasRole(ObjUser user, ERole eRole);
@@ -25,4 +21,8 @@ public interface UserSvc {
 	void registerUser(EUser eUser);
 
 	ObjUser getByEnum(EUser eUser);
+
+	ObjUser registerUser(String userName, String name, String password, Set<ERole> enumRoles);
+
+	ObjUser registerUser(String userName, String password, Set<ERole> eRoles);
 }

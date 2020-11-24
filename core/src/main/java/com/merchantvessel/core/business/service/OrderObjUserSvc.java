@@ -8,11 +8,9 @@ import org.springframework.stereotype.Service;
 
 import com.merchantvessel.core.business.enumeration.ERole;
 import com.merchantvessel.core.persistence.model.Obj;
-import com.merchantvessel.core.persistence.model.ObjRole;
 import com.merchantvessel.core.persistence.model.ObjUser;
 import com.merchantvessel.core.persistence.model.Order;
 import com.merchantvessel.core.persistence.model.OrderObjUser;
-import com.merchantvessel.core.persistence.repository.RoleRepo;
 
 /**
  * TODO: Enable business type specific method overrides to set Business type
@@ -25,8 +23,6 @@ import com.merchantvessel.core.persistence.repository.RoleRepo;
 @Service
 public class OrderObjUserSvc extends OrderSvc {
 
-	@Autowired
-	RoleRepo roleRepo;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -36,24 +32,7 @@ public class OrderObjUserSvc extends OrderSvc {
 		OrderObjUser orderUser = (OrderObjUser) order;
 		objUser.setUsername(orderUser.getUsername());
 		objUser.setPassword(orderUser.getPassword());
-		// ---------------------------------------------------------------------
-		// ADD ROLES
-		// ---------------------------------------------------------------------
-		Set<String> enumRoles = orderUser.getEnumRoles();
-		Set<ObjRole> roles = new HashSet<>();
-		if (enumRoles == null) {
-			// DEFAULT ROLE: TRADER
-			ObjRole userRole = roleRepo.findByName(ERole.ROLE_TRADER.getName());
-			roles.add(userRole);
-		} else {
-			enumRoles.forEach(enumRole -> {
-				ObjRole role = roleRepo.findByName(enumRole);
-				if (role != null) {
-					roles.add(role);
-				}
-			});
-		}
-		objUser.setRoles(roles);
+		objUser.setRoleSet(orderUser.getObjRoleSet());
 		return (ObjClassType) objUser;
 	}
 
@@ -65,7 +44,7 @@ public class OrderObjUserSvc extends OrderSvc {
 		OrderObjUser orderUser = (OrderObjUser) order;
 		orderUser.setUsername(objUser.getUsername());
 		orderUser.setPassword(objUser.getPassword());
-		orderUser.setEnumRolesFromObjRole(objUser.getRoles());
+		orderUser.setObjRoleSet(objUser.getRoleSet());
 		return (OrderClassType) orderUser;
 	}
 

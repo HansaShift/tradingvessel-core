@@ -12,10 +12,8 @@ import com.merchantvessel.core.business.enumeration.EBusinessType;
 import com.merchantvessel.core.business.enumeration.EPrcAction;
 import com.merchantvessel.core.business.enumeration.ERole;
 import com.merchantvessel.core.business.enumeration.EUser;
-import com.merchantvessel.core.persistence.model.ObjRole;
 import com.merchantvessel.core.persistence.model.ObjUser;
 import com.merchantvessel.core.persistence.model.OrderObjUser;
-import com.merchantvessel.core.persistence.repository.RoleRepo;
 import com.merchantvessel.core.persistence.repository.UserRepo;
 
 @Service
@@ -39,8 +37,6 @@ public class UserSvcImpl implements UserSvc {
 	@Autowired
 	ObjSvc objSvc;
 
-	@Autowired
-	RoleRepo roleRepo;
 
 	@Autowired
 	PasswordEncoder encoder;
@@ -63,8 +59,8 @@ public class UserSvcImpl implements UserSvc {
 
 	@Override
 	public boolean hasRole(ObjUser user, ERole eRole) {
-		for (ObjRole role : user.getRoles()) {
-			if (role.getName().equals(eRole.toString())) {
+		for (ERole role : user.getRoleSet()) {
+			if (role.equals(eRole)) {
 				return true;
 			}
 		}
@@ -74,13 +70,13 @@ public class UserSvcImpl implements UserSvc {
 	@Override
 	public void registerUser(EUser eUser) {
 
-		Set<String> roles = new HashSet<>();
-		roles.add(eUser.getRole().getName());
-		ObjUser objUser = userSvc.registerUser(eUser.toString(), eUser.getName(), eUser.toString(), roles);
+		Set<ERole> roles = new HashSet<>();
+		roles.add(eUser.getRole());
+		userSvc.registerUser(eUser.toString(), eUser.getName(), eUser.toString(), roles);
 	}
 
 	@Override
-	public ObjUser registerUser(String userName, String name, String password, Set<String> enumRoles) {
+	public ObjUser registerUser(String userName, String name, String password, Set<ERole> enumRoles) {
 
 		// ---------------------------------------------------------------------
 		// ENSURE USER NAME IS UNIQUE
@@ -111,7 +107,7 @@ public class UserSvcImpl implements UserSvc {
 			order.setObjName(name);
 			order.setUsername(userName);
 			order.setPassword(encoder.encode(password));
-			order.setEnumRoles(enumRoles);
+			order.setObjRoleSet(enumRoles);
 			order = orderUserSvc.execAction(order, EPrcAction.OBJ_BASE_CREATE_VFY);
 			registeredUser = (ObjUser) order.getObj();
 		}
@@ -136,7 +132,7 @@ public class UserSvcImpl implements UserSvc {
 	}
 
 	@Override
-	public ObjUser registerUser(String userName, String password, Set<String> eRoles) {
+	public ObjUser registerUser(String userName, String password, Set<ERole> eRoles) {
 		return registerUser(userName, userName, password, eRoles);
 
 	}

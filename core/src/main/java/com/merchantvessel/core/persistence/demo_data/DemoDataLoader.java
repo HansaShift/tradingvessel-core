@@ -10,7 +10,6 @@ import com.merchantvessel.core.business.enumeration.ECtrlVar;
 import com.merchantvessel.core.business.enumeration.EUser;
 import com.merchantvessel.core.business.service.ControlSvc;
 import com.merchantvessel.core.business.service.LogSvc;
-import com.merchantvessel.core.business.service.RoleSvc;
 import com.merchantvessel.core.business.service.UserSvc;
 import com.merchantvessel.core.business.service.test.TestOrderSvc;
 import com.merchantvessel.core.persistence.model.CtrlVar;
@@ -18,8 +17,6 @@ import com.merchantvessel.core.persistence.model.Log;
 
 @Component
 public class DemoDataLoader {
-	@Autowired
-	private RoleSvc roleSvc;
 
 	@Autowired
 	private UserSvc userSvc;
@@ -66,7 +63,6 @@ public class DemoDataLoader {
 			System.out.println("Demo data was already loaded in a previous run.");
 			return;
 		}
-		roleSvc.createRoles(); // roles are created without order
 		userSvc.registerUser(EUser.TECHNICAL_USER); // create Technical User via manual insert
 		testOrderSvc.testOrders();
 		userSvc.createUsersFromEnum(); // create remaining demo users via orders

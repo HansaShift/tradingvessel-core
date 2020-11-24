@@ -5,6 +5,8 @@ import java.util.Set;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+import com.merchantvessel.core.business.enumeration.ERole;
+
 public class SignupRequest {
 
 	@NotBlank
@@ -16,7 +18,7 @@ public class SignupRequest {
 //    @Email
 //    private String email;
 //
-	private Set<String> role;
+	private Set<ERole> roleSet;
 
 	@NotBlank
 	@Size(min = 6, max = 40)
@@ -46,11 +48,12 @@ public class SignupRequest {
 		this.password = password;
 	}
 
-	public Set<String> getRole() {
-		return this.role;
+	public Set<ERole> getRoleSet() {
+		return roleSet;
 	}
 
-	public void setRole(Set<String> role) {
-		this.role = role;
+	public void setRoleSet(Set<ERole> role) {
+		this.roleSet = role;
 	}
+
 }

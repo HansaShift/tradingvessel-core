@@ -24,15 +24,15 @@ public class OrderObjUser extends Order implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Column(name = "OBJ_USER_NAME")
-	private String username;
+	private String objUsername;
 
 	@Size(max = 120)
 	@Column(name = "OBJ_PASSWORD")
-	private String password;
+	private String objPassword;
 
 	@ElementCollection
-	@CollectionTable(name = "enumRoles")
-	private Set<String> enumRoles;
+	@CollectionTable(name = "OBJ_ROLE_LIST")
+	private Set<ERole> objRoleSet;
 
 	public OrderObjUser() {
 		super();
@@ -43,11 +43,11 @@ public class OrderObjUser extends Order implements Serializable {
 	}
 
 	public String getUsername() {
-		return username;
+		return objUsername;
 	}
 
 	public void setUsername(String username) {
-		this.username = username;
+		this.objUsername = username;
 	}
 
 	public static long getSerialversionuid() {
@@ -55,33 +55,26 @@ public class OrderObjUser extends Order implements Serializable {
 	}
 
 	public String getPassword() {
-		return password;
+		return objPassword;
 	}
 
 	public void setPassword(String password) {
-		this.password = password;
+		this.objPassword = password;
 	}
 
-	public Set<String> getEnumRoles() {
-		return enumRoles;
+	public Set<ERole> getObjRoleSet() {
+		return objRoleSet;
 	}
 
-	public void setEnumRoles(Set<String> enumRoles) {
-		this.enumRoles = enumRoles;
-	}
-
-	public void setEnumRolesFromObjRole(Set<ObjRole> roles) {
-
-		for (ObjRole role : roles) {
-			addEnumRole(ERole.valueOf(role.getEnumKey()));
-		}
+	public void setObjRoleSet(Set<ERole> set) {
+		this.objRoleSet = set;
 	}
 
 	public void addEnumRole(ERole enumRole) {
-		if (this.enumRoles == null) {
-			this.enumRoles = new HashSet<String>();
+		if (this.objRoleSet == null) {
+			this.objRoleSet = new HashSet<ERole>();
 		}
-		this.enumRoles.add(enumRole.getName());
+		this.objRoleSet.add(enumRole);
 	}
 
 }
