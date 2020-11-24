@@ -3,8 +3,9 @@ package com.merchantvessel.core.business.service.test;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.merchantvessel.core.business.enumeration.EBusinessType;
 import com.merchantvessel.core.business.enumeration.EPrcAction;
 import com.merchantvessel.core.business.enumeration.ERole;
@@ -76,7 +77,7 @@ public class TestOrderSvc {
 		orderUser.setUsername("INTERACTIVE_BROKERS");
 		orderUser.setPassword(encoder.encode("INTERACTIVE_BROKERS"));
 		orderUser.addEnumRole(ERole.ROLE_BROKER);
-		
+
 		// VFY ORDER (persisting object
 		orderUser = orderUserSvc.<ObjUser, OrderObjUser>execAction(orderUser, EPrcAction.OBJ_BASE_CREATE_VFY);
 		Obj createdUser = orderUser.getObj();
@@ -87,7 +88,7 @@ public class TestOrderSvc {
 				createdUser);
 		orderUser.setAdvText("Change name of user 'James Madison' to 'James Miller'");
 		orderUser.setObjName("Superdry Brokers");
-		orderUser.setUsername("SUPERDRY_BROKERS" );
+		orderUser.setUsername("SUPERDRY_BROKERS");
 		orderUserSvc.execAction(orderUser, EPrcAction.OBJ_BASE_MDF_VFY);
 	}
 

@@ -1,9 +1,5 @@
 package com.merchantvessel.core.business.service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +19,7 @@ public class ObjSvc {
 
 	@Autowired
 	private ObjHistSvc objHistSvc;
+
 	@Autowired
 	private LogSvc logSvc;
 
@@ -31,21 +28,22 @@ public class ObjSvc {
 
 	}
 
-
-
 	public Obj save(Obj obj, Order order) {
 
 		obj = objRepo.save(obj);
 
 		if (obj.getId() == null) {
 			logSvc.write("ObjSvc.save(Obj, Order)", "Object could not be saved");
+			return null;
 		}
 
 		if (order == null) {
 			return obj;
 		}
 
+		// Only historize object if there is an order
 		ObjHist objHist = objHistSvc.historizeObj(obj, order);
+
 		if (objHist.getId() == null) {
 			logSvc.write("ObjSvc.save(Obj, Order)", "Object with ID: " + obj.getId() + " could not be historized!");
 			return null;

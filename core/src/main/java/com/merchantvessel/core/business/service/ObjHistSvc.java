@@ -23,24 +23,31 @@ public class ObjHistSvc {
 	public ObjHistSvc() {
 	}
 
-	// TODO: create OBJ_HIST entries using reflection for business type specific
-	// object history
-	public ObjHist historizeObj(Obj obj, Order order) {
-
+	private List<ObjHist> getObjHistList(Obj obj, LocalDateTime validFrom) {
 		List<ObjHist> objHistList = new ArrayList<ObjHist>();
-		ObjHist objHistNew = null;
-		LocalDateTime validFrom = order.getValueDate();
 
 		if (validFrom == null) {
 			objHistList = getObjHistByObj(obj);
 		} else {
 			objHistList = getObjHistByObjAndValidFrom(obj, validFrom);
 		}
+		return objHistList;
+	}
+
+	// TODO: create OBJ_HIST entries using reflection for business type specific
+	// object history
+	public ObjHist historizeObj(Obj obj, Order order) {
+
+		ObjHist objHistNew = null;
+		LocalDateTime validFrom = order.getValueDate();
+
+		List<ObjHist> objHistList = getObjHistList(obj, validFrom);
 
 		if (objHistList.size() == 0) {
 			// CASE 1: HISTORY DOES NOT EXIST
 			validFrom = validFrom != null ? validFrom : controlSvc.getMinDateLocalDateTime();
 			objHistNew = new ObjHist(obj, order, validFrom, controlSvc.getMaxDateLocalDateTime(), true);
+			// create ObjHist Object based on ObjType
 			objHistNew = save(objHistNew);
 		} else {
 
