@@ -27,6 +27,13 @@ public class ObjSvc {
 		return objRepo.save(obj);
 
 	}
+	
+	public boolean objIsLocked(Obj obj) {
+		if(obj == null || obj.getOrder() == null) {
+			return false;
+		}
+		return true;
+	}
 
 	public Obj save(Obj obj, Order order) {
 

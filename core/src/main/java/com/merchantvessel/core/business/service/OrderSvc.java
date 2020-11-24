@@ -61,13 +61,7 @@ public class OrderSvc {
 	public <ObjType extends Obj, OrderClassType extends Order> OrderClassType execAction(OrderClassType order,
 			EPrcAction prcAction) {
 
-		ObjType obj = null;
-		try {
-			obj = (ObjType) order.getBusinessType().getObjClass().getDeclaredConstructor().newInstance();
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			e.printStackTrace();
-		}
+		ObjType obj = instantiateObj(order);
 
 		List<EBusinessType> businessTypesForWorkflow = new ArrayList<EBusinessType>();
 		businessTypesForWorkflow.add(order.getDataKind() == EDataKind.MASTER_DATA ? EBusinessType.OBJ_BASE : null);
@@ -109,12 +103,8 @@ public class OrderSvc {
 				}
 
 				// PERSIST OBJECT
-				try {
-					obj = (ObjType) persistOrderObj(order);
-				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-					e.printStackTrace();
-				}
+
+				obj = (ObjType) persistOrderObj(order);
 				if (obj == null) {
 					logSvc.write("OrderSvc.execAction(Order, EPrcAction)",
 							"Object could not be persisted! Order ID: " + order.getId());
@@ -160,32 +150,43 @@ public class OrderSvc {
 		return true;
 	}
 
-	public <ObjType extends Obj, OrderClassType extends Order> ObjType setObjFieldsGeneric(ObjType obj,
-			OrderClassType order) {
-		obj.setName(order.getObjName());
-		obj.setBusinessType(order.getBusinessType());
-		obj.setName(order.getObjName());
-		if (obj.getOrderCreate() == null) {
-			obj.setOrderCreate(order);
+	// -------------------------------------------------------------
+	// INSTANTIATE Order
+	// -------------------------------------------------------------
+	private <OrderClassType extends Order> OrderClassType instantiateOrder(EBusinessType businessType) {
+		OrderClassType order = null;
+
+		// CREATE ORDER
+		try {
+			order = (OrderClassType) businessType.getOrderClass().getDeclaredConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
 		}
-		obj.setOrderMdf(order);
-		return obj;
+		return order;
 	}
 
-	public <ObjType extends Obj, OrderClassType extends Order> ObjType setObjFields(ObjType obj, OrderClassType order) {
-		return obj;
-	}
-
-	private <ObjType extends Obj> ObjType createObj(Order order) {
+	// -------------------------------------------------------------
+	// INSTANTIATE OBJECT
+	// -------------------------------------------------------------
+	private <ObjType extends Obj> ObjType instantiateObj(Order order) {
 		ObjType obj = null;
 
 		try {
 			obj = (ObjType) order.getBusinessType().getObjClass().getDeclaredConstructor().newInstance();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return obj;
+	}
+
+	// -------------------------------------------------------------
+	// CREATE OBJECT
+	// -------------------------------------------------------------
+	private <ObjType extends Obj> ObjType createObj(Order order) {
+
+		ObjType obj = instantiateObj(order);
 
 		obj = setObjFieldsGeneric(obj, order);
 		obj = setObjFields(obj, order);
@@ -194,9 +195,7 @@ public class OrderSvc {
 
 	}
 
-	private <ObjType extends Obj> ObjType persistOrderObj(Order order)
-			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-			NoSuchMethodException, SecurityException {
+	private <ObjType extends Obj> ObjType persistOrderObj(Order order) {
 
 		// ENSURE ORDER IS PERSISTED
 		if (order.getId() == null) {
@@ -251,6 +250,18 @@ public class OrderSvc {
 		}
 	}
 
+	private boolean validateObjExistence(@NotNull EPrcAction prcAction, @NotNull ObjUser objUser,
+			@NotNull EBusinessType businessType, Obj obj) {
+		// ENSURE OBJ EXISTS, UNLESS ORDER CREATES NEW OBJECT
+		if (((prcAction.isLockObj() && !prcAction.isCreateObj()) || prcAction.isPersistObj()
+				|| prcAction.isReleaseObj()) && obj == null) {
+			logSvc.write("OrderSvc.createOrder()", "Order cannot be created: Object is missing! User: "
+					+ objUser.getName() + " : " + businessType.getName());
+			return false;
+		}
+		return true;
+	}
+
 	// -------------------------------------------------------------
 	// CREATE ORDER
 	// -------------------------------------------------------------
@@ -261,52 +272,42 @@ public class OrderSvc {
 
 		if (dataKind == EDataKind.MASTER_DATA) {
 
-			// ENSURE OBJ EXISTS, UNLESS ORDER CREATES NEW OBJECT
-			if (((prcAction.isLockObj() && !prcAction.isCreateObj()) || prcAction.isPersistObj()
-					|| prcAction.isReleaseObj()) && obj == null) {
-				logSvc.write("OrderSvc.createOrder()", "Order cannot be created: Object is missing! User: "
-						+ objUser.getName() + " : " + businessType.getName());
+			if (!validateObjExistence(prcAction, objUser, businessType, obj)) {
 				return null;
 			}
 
 			// ENSURE OBJ IS NOT LOCKED
-			if (obj != null && obj.getOrder() != null) {
+			if (objSvc.objIsLocked(obj)) {
 				logSvc.write("OrderSvc.createOrder()", "Order cannot proceed: Object with ID: " + obj.getId()
 						+ " is locked by Order ID: " + obj.getOrder().getId());
 				return null;
 			}
 		}
 
-		OrderClassType order = null;
-
-		// -------------------------------------------------------------
 		// CREATE ORDER
-		// -------------------------------------------------------------
-		try {
-			order = (OrderClassType) businessType.getOrderClass().getDeclaredConstructor().newInstance();
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		OrderClassType order = instantiateOrder(businessType);
 
 		order.setDataKind(dataKind);
 		order.setBusinessType(businessType);
 		order.setObjUser(objUser);
 		order.setValueDate(generateValueDate(order, obj, valueDate));
+		order.setAdvText(generateAdvText(order, prcAction));
+
+		order = orderRepo.save(order);
+		order = execAction(order, prcAction);
+		return order;
+	}
+
+	private String generateAdvText(Order order, EPrcAction prcAction) {
 		String advText = prcAction.getName();
+		Obj obj = order.getObj();
 
 		if (obj != null) {
 			advText = advText + ": Object Name: " + obj.getName();
 			order = setOrderFieldsGeneric(obj, order);
 			order = setOrderFields(obj, order);
 		}
-
-		order.setAdvText(advText);
-		order = orderRepo.save(order);
-
-		order = execAction(order, prcAction);
-		return order;
+		return advText;
 	}
 
 	public void setValueDate(Order order, int year, int month, int day) {
@@ -326,7 +327,23 @@ public class OrderSvc {
 
 	public <ObjType extends Obj, OrderClassType extends Order> OrderClassType setOrderFields(ObjType obj,
 			OrderClassType order) {
-
 		return order;
 	}
+
+	public <ObjType extends Obj, OrderClassType extends Order> ObjType setObjFieldsGeneric(ObjType obj,
+			OrderClassType order) {
+		obj.setName(order.getObjName());
+		obj.setBusinessType(order.getBusinessType());
+		obj.setName(order.getObjName());
+		if (obj.getOrderCreate() == null) {
+			obj.setOrderCreate(order);
+		}
+		obj.setOrderMdf(order);
+		return obj;
+	}
+
+	public <ObjType extends Obj, OrderClassType extends Order> ObjType setObjFields(ObjType obj, OrderClassType order) {
+		return obj;
+	}
+
 }
