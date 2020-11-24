@@ -37,7 +37,6 @@ public class UserSvcImpl implements UserSvc {
 	@Autowired
 	ObjSvc objSvc;
 
-
 	@Autowired
 	PasswordEncoder encoder;
 
@@ -91,8 +90,14 @@ public class UserSvcImpl implements UserSvc {
 		// ---------------------------------------------------------------------
 		ObjUser technicalUser = userRepo.findByUsername(EUser.TECHNICAL_USER.toString());
 		ObjUser registeredUser = null;
+		
 		if (technicalUser == null && userName == EUser.TECHNICAL_USER.toString()) {
 			ObjUser user = new ObjUser(userName, name, encoder.encode(password));
+			Set<ERole> roles = new HashSet<ERole>();
+			roles.add(ERole.ROLE_ADMIN);
+			roles.add(ERole.ROLE_BROKER);
+			roles.add(ERole.ROLE_TRADER);
+			user.setRoleSet(roles);
 			registeredUser = userRepo.save(user);
 		} else {
 

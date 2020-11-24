@@ -35,7 +35,7 @@ public class ObjUser extends Obj implements Serializable {
 	@Size(max = 120)
 	private String password;
 
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	@Column(name = "ROLE_SET")
 	private Set<ERole> roleSet = new HashSet<>();
 
