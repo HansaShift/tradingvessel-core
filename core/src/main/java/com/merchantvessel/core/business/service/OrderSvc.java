@@ -45,6 +45,9 @@ public class OrderSvc {
 	@Autowired
 	private LogSvc logSvc;
 
+	// -------------------------------------------------------------
+	// ORDER TRANSITION IN PROCESS
+	// -------------------------------------------------------------
 	public Order transOrder(Order order, EPrcAction prcAction) {
 		// DOCUMENT ORDER TRANSITION
 		OrderTrans orderTrans = new OrderTrans();
@@ -58,6 +61,9 @@ public class OrderSvc {
 		return order;
 	}
 
+	// -------------------------------------------------------------
+	// EXECUTE PROCESS ACTION
+	// -------------------------------------------------------------
 	public <ObjType extends Obj, OrderClassType extends Order> OrderClassType execAction(OrderClassType order,
 			EPrcAction prcAction) {
 
@@ -137,21 +143,10 @@ public class OrderSvc {
 		return order;
 	}
 
-	public boolean validateObjOrder(Order order) {
 
-		// VALIDATE OBJ CLOSE DATE
-		if (!objSvc.validateObjCloseDate(order))
-			return false;
-
-		// VALIDATE OBJ NAME
-		if (!objSvc.validateObjName(order.getObjName()))
-			return false;
-
-		return true;
-	}
 
 	// -------------------------------------------------------------
-	// INSTANTIATE Order
+	// INSTANTIATE ORDER
 	// -------------------------------------------------------------
 	private <OrderClassType extends Order> OrderClassType instantiateOrder(EBusinessType businessType) {
 		OrderClassType order = null;
@@ -195,6 +190,9 @@ public class OrderSvc {
 
 	}
 
+	// -------------------------------------------------------------
+	// PERSIST OBJECT
+	// -------------------------------------------------------------
 	private <ObjType extends Obj> ObjType persistOrderObj(Order order) {
 
 		// ENSURE ORDER IS PERSISTED
@@ -234,7 +232,9 @@ public class OrderSvc {
 	}
 
 
-
+	// -------------------------------------------------------------
+	// VALIDATE OBJECT EXISTENCE
+	// -------------------------------------------------------------
 	private boolean validateObjExistence(@NotNull EPrcAction prcAction, @NotNull ObjUser objUser,
 			@NotNull EBusinessType businessType, Obj obj) {
 		// ENSURE OBJ EXISTS, UNLESS ORDER CREATES NEW OBJECT
@@ -247,6 +247,22 @@ public class OrderSvc {
 		return true;
 	}
 
+	// -------------------------------------------------------------
+	// VALIDATE OBJECT ORDER
+	// -------------------------------------------------------------
+	public boolean validateObjOrder(Order order) {
+
+		// VALIDATE OBJ CLOSE DATE
+		if (!objSvc.validateObjCloseDate(order))
+			return false;
+
+		// VALIDATE OBJ NAME
+		if (!objSvc.validateObjName(order.getObjName()))
+			return false;
+
+		return true;
+	}
+	
 	// -------------------------------------------------------------
 	// CREATE ORDER
 	// -------------------------------------------------------------
@@ -283,6 +299,9 @@ public class OrderSvc {
 		return order;
 	}
 
+	// -------------------------------------------------------------
+	// CREATE ORDER ADVICE TEXT
+	// -------------------------------------------------------------
 	private String generateAdvText(Order order, EPrcAction prcAction) {
 		String advText = prcAction.getName();
 		Obj obj = order.getObj();
@@ -295,6 +314,9 @@ public class OrderSvc {
 		return advText;
 	}
 
+	// -------------------------------------------------------------
+	// CREATE ORDER VALUE DATE
+	// -------------------------------------------------------------
 	public LocalDateTime generateValueDate(Order order, Obj obj, LocalDateTime valueDate) {
 
 		if (valueDate != null) {
@@ -312,6 +334,9 @@ public class OrderSvc {
 		}
 	}
 	
+	// -------------------------------------------------------------
+	// SET ORDER VALUE DATE
+	// -------------------------------------------------------------
 	public void setValueDate(Order order, int year, int month, int day) {
 		Date valueDateAsDate = new GregorianCalendar(year, month, day).getTime();
 		LocalDateTime valueDate = valueDateAsDate.toInstant().atZone(ZoneId.of(controlSvc.getGlobalTimeZone()))
@@ -319,6 +344,9 @@ public class OrderSvc {
 		order.setValueDate(valueDate);
 	}
 
+	// -------------------------------------------------------------
+	// SET ORDER FIELDS - GENERIC
+	// -------------------------------------------------------------
 	public <ObjType extends Obj, OrderClassType extends Order> OrderClassType setOrderFieldsGeneric(ObjType obj,
 			OrderClassType order) {
 		order.setObj(obj);
@@ -327,11 +355,17 @@ public class OrderSvc {
 		return order;
 	}
 
+	// -------------------------------------------------------------
+	// SET ORDER FIELDS - BUSINESS TYPE
+	// -------------------------------------------------------------
 	public <ObjType extends Obj, OrderClassType extends Order> OrderClassType setOrderFields(ObjType obj,
 			OrderClassType order) {
 		return order;
 	}
 
+	// -------------------------------------------------------------
+	// SET OBJECT FIELDS - GENERIC
+	// -------------------------------------------------------------
 	public <ObjType extends Obj, OrderClassType extends Order> ObjType setObjFieldsGeneric(ObjType obj,
 			OrderClassType order) {
 		obj.setName(order.getObjName());
@@ -344,6 +378,9 @@ public class OrderSvc {
 		return obj;
 	}
 
+	// -------------------------------------------------------------
+	// SET OBJECT FIELDS - BUSINESS TYPE
+	// -------------------------------------------------------------
 	public <ObjType extends Obj, OrderClassType extends Order> ObjType setObjFields(ObjType obj, OrderClassType order) {
 		return obj;
 	}
