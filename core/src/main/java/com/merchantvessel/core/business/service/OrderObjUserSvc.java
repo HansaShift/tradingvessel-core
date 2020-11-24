@@ -65,6 +65,7 @@ public class OrderObjUserSvc extends OrderSvc {
 		OrderObjUser orderUser = (OrderObjUser) order;
 		orderUser.setUsername(objUser.getUsername());
 		orderUser.setPassword(objUser.getPassword());
+		orderUser.setEnumRolesFromObjRole(objUser.getRoles());
 		return (OrderClassType) orderUser;
 	}
 

@@ -72,11 +72,11 @@ public class TestOrderSvc {
 		OrderObjUser orderUser = orderUserSvc.createOrder(EBusinessType.OBJ_USER, EPrcAction.OBJ_BASE_INIT_CREATE,
 				objUser, null, null);
 		orderUser.setAdvText("Create new user called James Madison");
-		orderUser.setObjName("James Madison");
-		orderUser.setUsername("JAMES_MADISON");
-		orderUser.setPassword(encoder.encode("JAMES_MADISON"));
-		orderUser.addEnumRole(ERole.ROLE_ADMIN);
-//		orderUser.setValueDate(controlSvc.getMinDateLocalDateTime());
+		orderUser.setObjName("Interactive Brokers");
+		orderUser.setUsername("INTERACTIVE_BROKERS");
+		orderUser.setPassword(encoder.encode("INTERACTIVE_BROKERS"));
+		orderUser.addEnumRole(ERole.ROLE_BROKER);
+		
 		// VFY ORDER (persisting object
 		orderUser = orderUserSvc.<ObjUser, OrderObjUser>execAction(orderUser, EPrcAction.OBJ_BASE_CREATE_VFY);
 		Obj createdUser = orderUser.getObj();
@@ -86,39 +86,9 @@ public class TestOrderSvc {
 		orderUser = orderUserSvc.createOrder(EBusinessType.OBJ_USER, EPrcAction.OBJ_BASE_INIT_MDF, objUser, null,
 				createdUser);
 		orderUser.setAdvText("Change name of user 'James Madison' to 'James Miller'");
-		orderUser.setObjName("James Miller");
-		orderUser.setUsername("JAMES_MILLER");
-//		orderUser.setValueDate(controlSvc.getFinDate());
+		orderUser.setObjName("Superdry Brokers");
+		orderUser.setUsername("SUPERDRY_BROKERS" );
 		orderUserSvc.execAction(orderUser, EPrcAction.OBJ_BASE_MDF_VFY);
 	}
-
-//	// CREATE USER USING ORDER
-//	// GET USER
-//	ObjUser objUser = userRepo.findByUsername(EUser.TECHNICAL_USER.toString());
-//
-//	System.err.println(objUser.getName());
-//
-//	// CREATE ORDER
-//	OrderObjUser orderUser = orderUserSvc.createOrder(EBusinessType.OBJ_USER,
-//			EPrcAction.OBJ_BASE_INIT_CREATE, objUser, null,  null);
-//	orderUser.setAdvText("Create new user called James Madison");
-//	orderUser.setObjName("James Madison");
-//	orderUser.setUsername("JAMES_MADISON");
-//	orderUser.setPassword(encoder.encode("JAMES_MADISON"));
-////	orderUser.setValueDate(controlSvc.getMinDateLocalDateTime());
-//	// VFY ORDER (persisting object
-//	orderUser = orderUserSvc.<ObjUser, OrderObjUser>execAction(orderUser, EPrcAction.OBJ_BASE_CREATE_VFY,
-//			ObjUser.class);
-//	Obj createdUser = orderUser.getObj();
-//	orderUser = null;
-//
-//	// OPEN USER AND MODIFY HIS NAME
-//	orderUser = orderUserSvc.createOrder(EBusinessType.OBJ_USER,
-//			EPrcAction.OBJ_BASE_INIT_MDF, objUser, null, createdUser);
-//	orderUser.setAdvText("Change name of user 'James Madison' to 'James Miller'");
-//	orderUser.setObjName("James Miller");
-//	orderUser.setUsername("JAMES_MILLER");
-////	orderUser.setValueDate(controlSvc.getFinDate());
-//	orderUserSvc.execAction(orderUser, EPrcAction.OBJ_BASE_MDF_VFY, ObjUser.class);
 
 }

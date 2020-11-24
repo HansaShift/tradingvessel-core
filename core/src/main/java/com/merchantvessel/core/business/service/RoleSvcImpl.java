@@ -21,7 +21,7 @@ public class RoleSvcImpl implements RoleSvc {
 	private void createRole(ERole eRole) {
 
 		if (!roleRepo.existsByName(eRole.getName())) {
-			ObjRole role = new ObjRole(eRole.getName());
+			ObjRole role = new ObjRole(eRole);
 			roleRepo.save(role);
 		}
 	}

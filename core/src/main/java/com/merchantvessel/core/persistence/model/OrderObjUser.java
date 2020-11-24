@@ -69,12 +69,19 @@ public class OrderObjUser extends Order implements Serializable {
 	public void setEnumRoles(Set<String> enumRoles) {
 		this.enumRoles = enumRoles;
 	}
-	
+
+	public void setEnumRolesFromObjRole(Set<ObjRole> roles) {
+
+		for (ObjRole role : roles) {
+			addEnumRole(ERole.valueOf(role.getEnumKey()));
+		}
+	}
+
 	public void addEnumRole(ERole enumRole) {
-		if(this.enumRoles == null) {
+		if (this.enumRoles == null) {
 			this.enumRoles = new HashSet<String>();
 		}
 		this.enumRoles.add(enumRole.getName());
-	}	
+	}
 
 }
