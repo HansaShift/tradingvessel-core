@@ -44,7 +44,7 @@ public class DemoDataLoader {
 	/*
 	 * Creates Demo Data if not yet done
 	 */
-	private void setCtrlVars() {
+	private void checkCtrlVars() {
 		CtrlVar demoDataCreate = controlSvc.getByEnum(ECtrlVar.DEMO_DATA_CREATED);
 		if (demoDataCreate == null) {
 			createCtrlVars();
@@ -55,18 +55,14 @@ public class DemoDataLoader {
 
 			}
 		}
-	}
 
-	public void createDemoData() {
-		setCtrlVars();
 		if (controlSvc.getByEnum(ECtrlVar.DEMO_DATA_CREATED).isValBool()) {
 			System.out.println("Demo data was already loaded in a previous run.");
 			return;
 		}
-		userSvc.registerUser(EUser.TECHNICAL_USER); // create Technical User via manual insert
-		testOrderSvc.testOrders();
-		userSvc.createUsersFromEnum(); // create remaining demo users via orders
+	}
 
+	private void checkLogs() {
 		List<Log> logs = logSvc.getAll();
 		if (logs.size() > 0) {
 			System.err.println("There are logs in the database:");
@@ -77,6 +73,14 @@ public class DemoDataLoader {
 			controlSvc.setVal(ECtrlVar.DEMO_DATA_CREATED, true);
 			System.err.println("Demo data loaded successfully");
 		}
+	}
+
+	public void createDemoData() {
+		checkCtrlVars();
+		userSvc.registerUser(EUser.TECHNICAL_USER); // create Technical User via manual insert
+		testOrderSvc.testOrders();
+		userSvc.createUsersFromEnum(); // create remaining demo users via orders
+		checkLogs();
 
 	}
 

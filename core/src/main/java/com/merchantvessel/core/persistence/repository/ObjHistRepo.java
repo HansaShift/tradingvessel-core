@@ -14,5 +14,7 @@ public interface ObjHistRepo extends JpaRepository<ObjHist, Long> {
 
 	List<ObjHist> findByObjIdAndValidToGreaterThanEqual(Obj obj, LocalDateTime valueDate);
 
-	List<ObjHist> findByObjId(Obj obj);
+	<ObjTypeHist extends ObjHist, ObjClassType extends Obj>  List<ObjTypeHist> findByObjId(ObjClassType obj);
+	<ObjTypeHist extends ObjHist, ObjClassType extends Obj>  List<ObjTypeHist> findByObjIdAndValid(ObjClassType obj, boolean validEntries);
+
 }

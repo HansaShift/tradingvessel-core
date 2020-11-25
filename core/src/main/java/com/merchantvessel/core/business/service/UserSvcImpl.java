@@ -158,4 +158,8 @@ public class UserSvcImpl implements UserSvc {
 	public ObjUser getByEnum(EUser eUser) {
 		return userRepo.findByUsername(eUser.toString());
 	}
+	
+	public ObjUser getByUsername(String username) {
+		return userRepo.findByUsername(username);
+	}
 }

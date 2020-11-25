@@ -65,8 +65,12 @@ public class ObjHistSvc {
 		return objHistRepo.save(objHist);
 	}
 
-	public List<ObjHist> getObjHistByObj(Obj obj) {
+	public <ObjTypeHist extends ObjHist, ObjClassType extends Obj> List<ObjTypeHist> getObjHistByObj(ObjClassType obj) {
 		return objHistRepo.findByObjId(obj);
+	}
+	
+	public <ObjTypeHist extends ObjHist, ObjClassType extends Obj> List<ObjTypeHist> getObjHistByObj(ObjClassType obj, boolean validEntries) {
+		return objHistRepo.findByObjIdAndValid(obj, validEntries);
 	}
 
 	public List<ObjHist> getObjHistByObjAndValidFrom(Obj obj, LocalDateTime valueDate) {
