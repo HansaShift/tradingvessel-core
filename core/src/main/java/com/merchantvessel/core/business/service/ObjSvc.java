@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.merchantvessel.core.persistence.model.Obj;
-import com.merchantvessel.core.persistence.model.ObjHist;
 import com.merchantvessel.core.persistence.model.Order;
 import com.merchantvessel.core.persistence.repository.ObjRepo;
 
@@ -46,6 +45,10 @@ public class ObjSvc {
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
+		}
+		if (obj == null) {
+			logSvc.write("ObjSvc.instantiateObj()", "Object instantiation failed for order with User: "
+					+ order.getObjUser().getName() + " and Business Type: " + order.getBusinessType().getName());
 		}
 		return obj;
 	}

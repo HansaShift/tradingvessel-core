@@ -270,7 +270,6 @@ public class OrderSvc {
 			// HISTORIZE OBJECT
 			historizeObj(obj, order);
 
-
 		}
 		return obj;
 

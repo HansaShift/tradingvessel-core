@@ -1,8 +1,6 @@
 package com.merchantvessel.core.intf.controller;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.merchantvessel.core.business.enumeration.ERole;
 import com.merchantvessel.core.business.service.UserDetailsImpl;
 import com.merchantvessel.core.business.service.UserSvcImpl;
 import com.merchantvessel.core.intf.dto.JwtResponse;

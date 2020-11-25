@@ -90,7 +90,7 @@ public class UserSvcImpl implements UserSvc {
 		// ---------------------------------------------------------------------
 		ObjUser technicalUser = userRepo.findByUsername(EUser.TECHNICAL_USER.toString());
 		ObjUser registeredUser = null;
-		
+
 		if (technicalUser == null && userName == EUser.TECHNICAL_USER.toString()) {
 			ObjUser user = new ObjUser(userName, name, encoder.encode(password));
 			Set<ERole> roles = new HashSet<ERole>();

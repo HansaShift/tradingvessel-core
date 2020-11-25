@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import com.merchantvessel.core.persistence.model.Obj;
 import com.merchantvessel.core.persistence.model.ObjHist;
-import com.merchantvessel.core.persistence.model.Order;
 import com.merchantvessel.core.persistence.repository.ObjHistRepo;
 
 @Service
@@ -18,9 +17,12 @@ public class ObjHistSvc {
 
 	@Autowired
 	private ObjHistRepo objHistRepo;
-	
+
 	@Autowired
 	private ControlSvc controlSvc;
+
+	@Autowired
+	private LogSvc logSvc;
 
 	@Autowired
 	private OrderSvc orderSvc;
@@ -52,8 +54,9 @@ public class ObjHistSvc {
 				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
-		if(objHist == null) {
-			System.err.println("Object Instantiation failed 1");
+		if (objHist == null) {
+			logSvc.write("ObjHistSvc.instantiateObjHist()",
+					"Object historization failed ofr object with ID: " + obj.getId());
 		}
 		return objHist;
 	}
