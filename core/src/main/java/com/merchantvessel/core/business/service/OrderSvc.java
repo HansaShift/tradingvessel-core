@@ -17,6 +17,7 @@ import com.merchantvessel.core.business.enumeration.EBusinessType;
 import com.merchantvessel.core.business.enumeration.EDataKind;
 import com.merchantvessel.core.business.enumeration.EPrcAction;
 import com.merchantvessel.core.persistence.model.Obj;
+import com.merchantvessel.core.persistence.model.ObjHist;
 import com.merchantvessel.core.persistence.model.ObjUser;
 import com.merchantvessel.core.persistence.model.Order;
 import com.merchantvessel.core.persistence.model.OrderTrans;
@@ -45,6 +46,9 @@ public class OrderSvc {
 	@Autowired
 	private LogSvc logSvc;
 
+	@Autowired
+	private ObjHistSvc objHistSvc;
+
 	// -------------------------------------------------------------
 	// ORDER TRANSITION IN PROCESS
 	// -------------------------------------------------------------
@@ -68,7 +72,7 @@ public class OrderSvc {
 	public <ObjType extends Obj, OrderClassType extends Order> OrderClassType execAction(OrderClassType order,
 			EPrcAction prcAction) {
 
-		ObjType obj = instantiateObj(order);
+		ObjType obj = objSvc.instantiateObj(order);
 
 		List<EBusinessType> businessTypesForWorkflow = new ArrayList<EBusinessType>();
 		businessTypesForWorkflow.add(order.getDataKind() == EDataKind.MASTER_DATA ? EBusinessType.OBJ_BASE : null);
@@ -162,34 +166,71 @@ public class OrderSvc {
 	}
 
 	// -------------------------------------------------------------
-	// INSTANTIATE OBJECT
-	// -------------------------------------------------------------
-	@SuppressWarnings("unchecked")
-	private <ObjType extends Obj> ObjType instantiateObj(Order order) {
-		ObjType obj = null;
-
-		try {
-			obj = (ObjType) order.getBusinessType().getObjClass().getDeclaredConstructor().newInstance();
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			e.printStackTrace();
-		}
-		return obj;
-	}
-
-	// -------------------------------------------------------------
 	// CREATE OBJECT
 	// -------------------------------------------------------------
 	@SuppressWarnings("unchecked")
 	private <ObjType extends Obj> ObjType createObj(Order order) {
 
-		ObjType obj = instantiateObj(order);
+		ObjType obj = objSvc.instantiateObj(order);
 
 		obj = setObjFieldsGeneric(obj, order);
 		obj = setObjFields(obj, order);
 		obj = (ObjType) objSvc.save(obj, order);
+		// HISTORIZE OBJECT
+		historizeObj(obj, order);
+
 		return obj;
 
+	}
+
+	// -------------------------------------------------------------
+	// HISTORIZE OBJECT
+	// -------------------------------------------------------------
+	public <ObjHistClassType extends ObjHist, ObjClassType extends Obj, OrderSvcType extends OrderSvc> ObjHistClassType historizeObj(
+			ObjClassType obj, Order order) {
+
+		ObjHistClassType objHistNew = objHistSvc.instantiateObjHist(obj);
+
+		LocalDateTime validFrom = order.getValueDate();
+
+		List<ObjHist> objHistList = objHistSvc.getObjHistList(obj, validFrom);
+
+		if (objHistList.size() == 0) {
+			// CASE 1: HISTORY DOES NOT EXIST
+			validFrom = validFrom != null ? validFrom : controlSvc.getMinDateLocalDateTime();
+
+			objHistNew = setObjHistFieldsGeneric(objHistNew, obj, order, validFrom,
+					controlSvc.getMaxDateLocalDateTime());
+			objHistNew = setObjHistFields(objHistNew, obj, order);
+			// create ObjHist Object based on ObjType
+			objHistNew = (ObjHistClassType) objHistSvc.save(objHistNew);
+		} else {
+
+			// CASE 2: HISTORY EXISTS
+			validFrom = validFrom != null ? validFrom : controlSvc.getFinDate();
+
+			// ADJUST EXISTING OBJ_HIST ENTRIES
+			for (ObjHist objHist : objHistList) {
+
+				objHist.setValidTo(validFrom.minusSeconds(1));
+
+				// INVALIDATE OVERRIDEN HISTORY ENTRIES
+				if (objHist.getValidFrom().isAfter(objHist.getValidTo())) {
+					objHist.setValid(false);
+				}
+				objHistSvc.save(objHist);
+			}
+			objHistNew = setObjHistFieldsGeneric(objHistNew, obj, order, validFrom,
+					controlSvc.getMaxDateLocalDateTime());
+			objHistNew = setObjHistFields(objHistNew, obj, order);
+			objHistNew = (ObjHistClassType) objHistSvc.save(objHistNew);
+		}
+		if (objHistNew.getId() == null) {
+			logSvc.write("ObjSvc.save(Obj, Order)", "Object with ID: " + obj.getId() + " could not be historized!");
+			return null;
+		}
+
+		return objHistNew;
 	}
 
 	// -------------------------------------------------------------
@@ -225,6 +266,11 @@ public class OrderSvc {
 			obj = setObjFieldsGeneric(obj, order);
 			obj = setObjFields(obj, order);
 			obj = (ObjType) objSvc.save(obj, order);
+
+			// HISTORIZE OBJECT
+			historizeObj(obj, order);
+
+
 		}
 		return obj;
 
@@ -377,6 +423,33 @@ public class OrderSvc {
 	// -------------------------------------------------------------
 	public <ObjType extends Obj, OrderClassType extends Order> ObjType setObjFields(ObjType obj, OrderClassType order) {
 		return obj;
+	}
+
+	// -------------------------------------------------------------
+	// SET OBJECT HIST FIELDS - GENERIC
+	// -------------------------------------------------------------
+	public <ObjHistClassType extends ObjHist, ObjClassType extends Obj, OrderClassType extends Order> ObjHistClassType setObjHistFieldsGeneric(
+			ObjHistClassType objHist, ObjClassType obj, OrderClassType order, @NotNull LocalDateTime validFrom,
+			@NotNull LocalDateTime validTo) {
+		objHist.setOrderId(order);
+		objHist.setObjId(obj);
+		objHist.setBusinessType(obj.getBusinessType());
+		objHist.setObjTsIns(obj.getTimestampCreate());
+		objHist.setObjTsLastMdf(obj.getTimestampModified());
+		objHist.setName(obj.getName());
+		objHist.setCloseDate(obj.getCloseDate());
+		objHist.setValidFrom(validFrom);
+		objHist.setValidTo(validTo);
+		objHist.setValid(true);
+		return objHist;
+	}
+
+	// -------------------------------------------------------------
+	// SET OBJECT HIST FIELDS - BUSINESS TYPE
+	// -------------------------------------------------------------
+	public <ObjHistClassType extends ObjHist, ObjClassType extends Obj, OrderClassType extends Order> ObjHistClassType setObjHistFields(
+			ObjHistClassType objHist, ObjClassType obj, OrderClassType order) {
+		return objHist;
 	}
 
 }

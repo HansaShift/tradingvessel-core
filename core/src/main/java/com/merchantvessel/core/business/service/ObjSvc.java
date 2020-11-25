@@ -1,5 +1,7 @@
 package com.merchantvessel.core.business.service;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,41 +20,42 @@ public class ObjSvc {
 	private ObjRepo objRepo;
 
 	@Autowired
-	private ObjHistSvc objHistSvc;
-
-	@Autowired
 	private LogSvc logSvc;
 
 	public Obj saveNoHist(Obj obj) {
 		return objRepo.save(obj);
 
 	}
-	
+
 	public boolean objIsLocked(Obj obj) {
-		if(obj == null || obj.getOrder() == null) {
+		if (obj == null || obj.getOrder() == null) {
 			return false;
 		}
 		return true;
+	}
+
+	// -------------------------------------------------------------
+	// INSTANTIATE OBJECT
+	// -------------------------------------------------------------
+	@SuppressWarnings("unchecked")
+	public <ObjType extends Obj> ObjType instantiateObj(Order order) {
+		ObjType obj = null;
+
+		try {
+			obj = (ObjType) order.getBusinessType().getObjClass().getDeclaredConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+		}
+		return obj;
 	}
 
 	public Obj save(Obj obj, Order order) {
 
 		obj = objRepo.save(obj);
 
-		if (obj.getId() == null) {
-			logSvc.write("ObjSvc.save(Obj, Order)", "Object could not be saved");
-			return null;
-		}
-
-		if (order == null) {
-			return obj;
-		}
-
-		// Only historize object if there is an order
-		ObjHist objHist = objHistSvc.historizeObj(obj, order);
-
-		if (objHist.getId() == null) {
-			logSvc.write("ObjSvc.save(Obj, Order)", "Object with ID: " + obj.getId() + " could not be historized!");
+		if (obj == null || obj.getId() == null) {
+			logSvc.write("ObjSvc.save(Obj, Ord er)", "Object could not be saved");
 			return null;
 		}
 

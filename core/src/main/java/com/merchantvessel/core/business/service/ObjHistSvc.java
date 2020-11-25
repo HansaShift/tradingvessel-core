@@ -1,5 +1,6 @@
 package com.merchantvessel.core.business.service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,13 +18,17 @@ public class ObjHistSvc {
 
 	@Autowired
 	private ObjHistRepo objHistRepo;
+	
 	@Autowired
 	private ControlSvc controlSvc;
+
+	@Autowired
+	private OrderSvc orderSvc;
 
 	public ObjHistSvc() {
 	}
 
-	private List<ObjHist> getObjHistList(Obj obj, LocalDateTime validFrom) {
+	public List<ObjHist> getObjHistList(Obj obj, LocalDateTime validFrom) {
 		List<ObjHist> objHistList = new ArrayList<ObjHist>();
 
 		if (validFrom == null) {
@@ -34,43 +39,23 @@ public class ObjHistSvc {
 		return objHistList;
 	}
 
-	// TODO: create OBJ_HIST entries using reflection for business type specific
-	// object history
-	public ObjHist historizeObj(Obj obj, Order order) {
+	// -------------------------------------------------------------
+	// INSTANTIATE OBJECT HISTORY
+	// -------------------------------------------------------------
+	@SuppressWarnings("unchecked")
+	public <ObjHistClassType extends ObjHist> ObjHistClassType instantiateObjHist(Obj obj) {
+		ObjHistClassType objHist = null;
 
-		ObjHist objHistNew = null;
-		LocalDateTime validFrom = order.getValueDate();
-
-		List<ObjHist> objHistList = getObjHistList(obj, validFrom);
-
-		if (objHistList.size() == 0) {
-			// CASE 1: HISTORY DOES NOT EXIST
-			validFrom = validFrom != null ? validFrom : controlSvc.getMinDateLocalDateTime();
-			objHistNew = new ObjHist(obj, order, validFrom, controlSvc.getMaxDateLocalDateTime(), true);
-			// create ObjHist Object based on ObjType
-			objHistNew = save(objHistNew);
-		} else {
-
-			// CASE 2: HISTORY EXISTS
-			validFrom = validFrom != null ? validFrom : controlSvc.getFinDate();
-
-			// ADJUST EXISTING OBJ_HIST ENTRIES
-			for (ObjHist objHist : objHistList) {
-
-				objHist.setValidTo(validFrom.minusSeconds(1));
-
-				// INVALIDATE OVERRIDEN HISTORY ENTRIES
-				if (objHist.getValidFrom().isAfter(objHist.getValidTo())) {
-					objHist.setValid(false);
-				}
-				save(objHist);
-			}
-
-			objHistNew = new ObjHist(obj, order, validFrom, controlSvc.getMaxDateLocalDateTime(), true);
-			objHistNew = save(objHistNew);
+		try {
+			objHist = (ObjHistClassType) obj.getBusinessType().getObjHistClass().getDeclaredConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
 		}
-
-		return objHistNew;
+		if(objHist == null) {
+			System.err.println("Object Instantiation failed 1");
+		}
+		return objHist;
 	}
 
 	public ObjHist save(ObjHist objHist) {

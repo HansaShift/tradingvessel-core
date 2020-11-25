@@ -1,14 +1,19 @@
 package com.merchantvessel.core.business.service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.merchantvessel.core.business.enumeration.ERole;
 import com.merchantvessel.core.persistence.model.Obj;
+import com.merchantvessel.core.persistence.model.ObjHist;
 import com.merchantvessel.core.persistence.model.ObjUser;
+import com.merchantvessel.core.persistence.model.ObjUserHist;
 import com.merchantvessel.core.persistence.model.Order;
 import com.merchantvessel.core.persistence.model.OrderObjUser;
 
@@ -23,6 +28,17 @@ import com.merchantvessel.core.persistence.model.OrderObjUser;
 @Service
 public class OrderObjUserSvc extends OrderSvc {
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public <ObjHistClassType extends ObjHist, ObjClassType extends Obj, OrderClassType extends Order> ObjHistClassType setObjHistFields(
+			ObjHistClassType objHist, ObjClassType obj, OrderClassType order) {
+		ObjUserHist objUserHist = (ObjUserHist) objHist;
+		ObjUser objUser = (ObjUser) obj;
+		objUserHist.setPassword(objUser.getPassword());
+		objUserHist.setUsername(objUser.getUsername());
+		objUserHist.setRoleSet(objUser.getRoleSet());
+		return (ObjHistClassType) objUserHist;
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
