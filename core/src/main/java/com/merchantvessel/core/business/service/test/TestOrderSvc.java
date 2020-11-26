@@ -55,6 +55,7 @@ public class TestOrderSvc {
 		createOrderToCreateObj();
 		createOrderToModifyObj();
 		createOrderToModifyObjInvalidateLastHist();
+		createOrderToAddThirdHistoryRecord();
 	}
 
 	private void createOrderToCreateObj() {
@@ -137,18 +138,25 @@ public class TestOrderSvc {
 		ObjUser objUser = userSvc.getByUsername("SUPERDRY_BROKERS");
 		// OPEN USER AND MODIFY HIS NAME
 		OrderObjUser orderUser = orderUserSvc.createOrder(EBusinessType.OBJ_USER, EPrcAction.OBJ_BASE_INIT_MDF,
-				technicalUser, controlSvc.getFinDate().minusDays(1), objUser);
+				technicalUser, controlSvc.getFinDate().minusWeeks(2), objUser);
 		orderUser.setAdvText("Change password of user 'SUPERDRY_BROKERS'");
 		orderUser.setPassword(encoder.encode("some random password"));
 		orderUserSvc.execAction(orderUser, EPrcAction.OBJ_BASE_MDF_VFY);
 		// assert: exactly one invalid entry in the history of that object
 		List<ObjUserHist> objUserList = objHistSvc.getObjHistByObj(objUser, false);
-		for (ObjUserHist objUserHist : objUserList) {
-			System.err.println(objUserHist.getValidFrom() + " : " + objUserHist.getValidTo());
-		}
 		if (objUserList.size() != 1) {
 			logSvc.write("TestOrderSvc.createOrderToModifyObj()",
 					"Object History should have exactly 1 invalid entry at this point. Object ID: " + objUser.getId());
 		}
+	}
+	
+	private void createOrderToAddThirdHistoryRecord() {
+		ObjUser technicalUser = userSvc.getByEnum(EUser.TECHNICAL_USER);
+		ObjUser objUser = userSvc.getByUsername("SUPERDRY_BROKERS");
+		// OPEN USER AND MODIFY HIS NAME
+		OrderObjUser orderUser = orderUserSvc.createOrder(EBusinessType.OBJ_USER, EPrcAction.OBJ_BASE_INIT_MDF,
+				technicalUser, controlSvc.getFinDate().minusWeeks(1), objUser);
+		orderUser.setAdvText("Change password of user 'SUPERDRY_BROKERS' for a second time");
+		
 	}
 }

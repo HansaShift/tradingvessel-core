@@ -53,7 +53,7 @@ public class ObjSvc {
 		return obj;
 	}
 
-	public Obj save(Obj obj, Order order) {
+	public Obj save(Obj obj) {
 
 		obj = objRepo.save(obj);
 

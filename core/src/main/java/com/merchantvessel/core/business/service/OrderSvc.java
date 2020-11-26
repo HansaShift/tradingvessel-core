@@ -175,7 +175,7 @@ public class OrderSvc {
 
 		obj = setObjFieldsGeneric(obj, order);
 		obj = setObjFields(obj, order);
-		obj = (ObjType) objSvc.save(obj, order);
+		obj = (ObjType) objSvc.save(obj);
 		// HISTORIZE OBJECT
 		historizeObj(obj, order);
 
@@ -183,54 +183,125 @@ public class OrderSvc {
 
 	}
 
+	private <ObjHistClassType extends ObjHist, ObjClassType extends Obj> ObjHistClassType historizeNewObj(
+			ObjHistClassType objHistNew, LocalDateTime orderValueDate, ObjClassType obj, Order order) {
+
+		if (orderValueDate == null) {
+			logSvc.write("OrderSvc.historizeObj()", "Order Value Date is missing. Order ID: " + order.getId());
+			return null;
+		}
+
+		objHistNew = setObjHistFieldsGeneric(objHistNew, obj, order, orderValueDate,
+				controlSvc.getMaxDateLocalDateTime());
+		objHistNew = setObjHistFields(objHistNew, obj, order);
+		// create ObjHist Object based on ObjType
+		objHistNew = (ObjHistClassType) objHistSvc.save(objHistNew);
+		return objHistNew;
+	}
+
 	// -------------------------------------------------------------
 	// HISTORIZE OBJECT
 	// -------------------------------------------------------------
-	public <ObjHistClassType extends ObjHist, ObjClassType extends Obj, OrderSvcType extends OrderSvc> ObjHistClassType historizeObj(
-			ObjClassType obj, Order order) {
+	public <ObjHistClassType extends ObjHist, ObjClassType extends Obj, OrderClassType extends Order> ObjHistClassType historizeObj(
+			ObjClassType obj, OrderClassType order) {
 
 		ObjHistClassType objHistNew = objHistSvc.instantiateObjHist(obj);
+		ObjHistClassType currentObjHist = null;
+		LocalDateTime orderValueDate = order.getValueDate();
+		boolean noHist = false;
 
-		LocalDateTime validFrom = order.getValueDate();
-
-		List<ObjHist> objHistList = objHistSvc.getObjHistList(obj, validFrom);
-
-		if (objHistList.size() == 0) {
-			// CASE 1: HISTORY DOES NOT EXIST
-			validFrom = validFrom != null ? validFrom : controlSvc.getMinDateLocalDateTime();
-
-			objHistNew = setObjHistFieldsGeneric(objHistNew, obj, order, validFrom,
-					controlSvc.getMaxDateLocalDateTime());
-			objHistNew = setObjHistFields(objHistNew, obj, order);
-			// create ObjHist Object based on ObjType
-			objHistNew = (ObjHistClassType) objHistSvc.save(objHistNew);
-		} else {
-
-			// CASE 2: HISTORY EXISTS
-			validFrom = validFrom != null ? validFrom : controlSvc.getFinDate();
-
-			// ADJUST EXISTING OBJ_HIST ENTRIES
-			for (ObjHist objHist : objHistList) {
-
-				objHist.setValidTo(validFrom.minusSeconds(1));
-
-				// INVALIDATE OVERRIDEN HISTORY ENTRIES
-				if (objHist.getValidFrom().isAfter(objHist.getValidTo())) {
-					objHist.setValid(false);
-				}
-				objHistSvc.save(objHist);
-			}
-			objHistNew = setObjHistFieldsGeneric(objHistNew, obj, order, validFrom,
-					controlSvc.getMaxDateLocalDateTime());
-			objHistNew = setObjHistFields(objHistNew, obj, order);
-			objHistNew = (ObjHistClassType) objHistSvc.save(objHistNew);
+		if (orderValueDate == null) {
+			logSvc.write("OrderSvc.historizeObj()", "Order Value Date is missing. Order ID: " + order.getId());
+			return null;
 		}
+		LocalDateTime validTo = controlSvc.getMaxDateLocalDateTime();
+
+		// ADJUST HISTORIC OBJ_HIST ENTRIES
+		List<ObjHistClassType> objHistListPast = objHistSvc.getPastObjHistByObj(obj, orderValueDate, true);
+
+		for (ObjHistClassType objHist : objHistListPast) {
+
+			// ADJUST HISTORIC ENTRIES IF VALID_TO IS AFTER ORDER VALUE DATE
+			if (objHist.getValidTo().isAfter(orderValueDate) || objHist.getValidTo().isEqual(orderValueDate)) {
+				// "CUT" HISTORIC PERIODS
+				objHist.setValidTo(orderValueDate.minusSeconds(1));
+				objHistSvc.save(objHist);
+				currentObjHist = objHist;
+			}
+
+		}
+
+		// HISTORY DOES NOT EXIST
+		if (currentObjHist != null) {
+			currentObjHist = historizeNewObj(objHistNew, orderValueDate, obj, order);
+		}
+
+		// DETERMINE DELTA OF CURRENT ORDER
+		ObjHistClassType objHistDelta = objHistSvc.instantiateObjHist(obj); // instantiate empty hist obj
+		objHistDelta = populateObjHistDeltaGeneric(currentObjHist, objHistDelta, order);
+		objHistDelta = populateObjHistDelta(currentObjHist, objHistDelta, order);
+
+		// TODO: reuse first future OBJ_HIST entry if its valid from date is equal to order value date
+		// TODO: create new OBJ_HIST entry if first future obj_hist entry has a valid_from date greater than order value date
+		// ADJUST FUTURE OBJ_HIST ENTRIES
+		List<ObjHistClassType> objHistListFuture = objHistSvc.getFutureObjHistByObj(obj, orderValueDate, true);
+		ObjHistClassType previousObjHist = currentObjHist;
+
+		for (ObjHistClassType objHistNext : objHistListFuture) {
+			objHistDelta = adjustFutureObjHistGeneric(objHistDelta, objHistNext, previousObjHist, order);
+			objHistDelta = adjustFutureObjHist(objHistDelta, objHistNext, previousObjHist, order);
+			previousObjHist = objHistNext;
+		}
+		objHistNew = setObjHistFieldsGeneric(objHistNew, obj, order, orderValueDate, validTo);
+		objHistNew = setObjHistFields(objHistNew, obj, order);
+		objHistNew = (ObjHistClassType) objHistSvc.save(objHistNew);
+
 		if (objHistNew.getId() == null) {
 			logSvc.write("ObjSvc.save(Obj, Order)", "Object with ID: " + obj.getId() + " could not be historized!");
 			return null;
 		}
 
 		return objHistNew;
+	}
+
+	private <ObjHistClassType extends ObjHist, ObjClassType extends Obj, OrderClassType extends Order> ObjHistClassType adjustFutureObjHist(
+			ObjHistClassType objHistDelta, ObjHistClassType objHistNext, ObjHistClassType previousObjHist,
+			OrderClassType order) {
+		// TODO Auto-generated method stub
+		return objHistDelta;
+	}
+
+	private <ObjHistClassType extends ObjHist, ObjClassType extends Obj, OrderClassType extends Order> ObjHistClassType adjustFutureObjHistGeneric(
+			ObjHistClassType orderDelta, ObjHistClassType objHistNext, ObjHistClassType previousObjHist,
+			OrderClassType order) {
+		ObjHistClassType objHist = previousObjHist;
+		objHist.setValidFrom(previousObjHist.getValidTo().plusSeconds(1));
+		objHist.setValidTo(objHistNext.getValidFrom().minusSeconds(1));
+		objHist.setName(orderDelta.getName() != null ? orderDelta.getName() : objHist.getName());
+		objHist.setCloseDate(orderDelta.getCloseDate() != null ? orderDelta.getCloseDate() : objHist.getCloseDate());
+
+		return objHist;
+	}
+
+	// -------------------------------------------------------------
+	// POPULATE OBJECT HISTORY DELTA - GENERIC
+	// -------------------------------------------------------------
+	private <ObjHistClassType extends ObjHist, ObjClassType extends Obj, OrderClassType extends Order> ObjHistClassType populateObjHistDeltaGeneric(
+			ObjHistClassType currentObjHist, ObjHistClassType objHistDelta, OrderClassType order) {
+
+		objHistDelta.setName(currentObjHist.getName() != order.getObjName() ? order.getObjName() : null);
+		objHistDelta.setCloseDate(
+				currentObjHist.getCloseDate() != order.getObjCloseDate() ? order.getObjCloseDate() : null);
+
+		return objHistDelta;
+	}
+
+	// -------------------------------------------------------------
+	// POPULATE OBJECT HISTORY DELTA - BUSINESS TYPE
+	// -------------------------------------------------------------
+	private <ObjHistClassType extends ObjHist, ObjClassType extends Obj, OrderClassType extends Order> ObjHistClassType populateObjHistDelta(
+			ObjHistClassType currentObjHist, ObjHistClassType objHistDelta, OrderClassType order) {
+		return objHistDelta;
 	}
 
 	// -------------------------------------------------------------
@@ -265,7 +336,7 @@ public class OrderSvc {
 			// UPDATE EXISTING OBJECT
 			obj = setObjFieldsGeneric(obj, order);
 			obj = setObjFields(obj, order);
-			obj = (ObjType) objSvc.save(obj, order);
+			obj = (ObjType) objSvc.save(obj);
 
 			// HISTORIZE OBJECT
 			historizeObj(obj, order);
@@ -410,9 +481,7 @@ public class OrderSvc {
 		obj.setName(order.getObjName());
 		obj.setBusinessType(order.getBusinessType());
 		obj.setName(order.getObjName());
-		if (obj.getOrderCreate() == null) {
-			obj.setOrderCreate(order);
-		}
+		obj.setOrderCreate(obj.getOrderCreate() == null ? order : null);
 		obj.setOrderMdf(order);
 		return obj;
 	}
